@@ -1,0 +1,421 @@
+Scenario,Product,Metric,Result,Included in denominator
+admission-webhook-outage,Edge Delta native,Detection,detected,True
+admission-webhook-outage,Grafana native,Detection,detected,True
+admission-webhook-outage,Claude + edx,Detection,not_measured,False
+admission-webhook-outage,Claude + gcx,Detection,not_measured,False
+admission-webhook-outage,Edge Delta native,Root cause analysis,correct,True
+admission-webhook-outage,Grafana native,Root cause analysis,correct,True
+admission-webhook-outage,Claude + edx,Root cause analysis,correct,True
+admission-webhook-outage,Claude + gcx,Root cause analysis,correct,True
+admission-webhook-outage,Edge Delta native,Blast radius,partial,True
+admission-webhook-outage,Grafana native,Blast radius,partial,True
+admission-webhook-outage,Claude + edx,Blast radius,incorrect,True
+admission-webhook-outage,Claude + gcx,Blast radius,incorrect,True
+admission-webhook-outage,Edge Delta native,Final mitigation,supported,True
+admission-webhook-outage,Grafana native,Final mitigation,supported,True
+admission-webhook-outage,Claude + edx,Final mitigation,supported,True
+admission-webhook-outage,Claude + gcx,Final mitigation,supported,True
+admission-webhook-outage,Edge Delta native,Implementation readiness,reviewable_checks_remaining,True
+admission-webhook-outage,Grafana native,Implementation readiness,reviewable_checks_remaining,True
+admission-webhook-outage,Claude + edx,Implementation readiness,reviewable_checks_remaining,True
+admission-webhook-outage,Claude + gcx,Implementation readiness,reviewable_checks_remaining,True
+cart-failure,Edge Delta native,Detection,detected,True
+cart-failure,Grafana native,Detection,not_detected,True
+cart-failure,Claude + edx,Detection,not_measured,False
+cart-failure,Claude + gcx,Detection,not_measured,False
+cart-failure,Edge Delta native,Root cause analysis,correct,True
+cart-failure,Grafana native,Root cause analysis,unscored,False
+cart-failure,Claude + edx,Root cause analysis,correct,True
+cart-failure,Claude + gcx,Root cause analysis,correct,True
+cart-failure,Edge Delta native,Blast radius,partial,True
+cart-failure,Grafana native,Blast radius,unscored,False
+cart-failure,Claude + edx,Blast radius,correct,True
+cart-failure,Claude + gcx,Blast radius,correct,True
+cart-failure,Edge Delta native,Final mitigation,candidate,True
+cart-failure,Grafana native,Final mitigation,unscored,False
+cart-failure,Claude + edx,Final mitigation,supported,True
+cart-failure,Claude + gcx,Final mitigation,supported,True
+cart-failure,Edge Delta native,Implementation readiness,essential_details_missing,True
+cart-failure,Grafana native,Implementation readiness,unscored,False
+cart-failure,Claude + edx,Implementation readiness,reviewable_checks_remaining,True
+cart-failure,Claude + gcx,Implementation readiness,reviewable_checks_remaining,True
+composite-noise-fault,Edge Delta native,Detection,detected,True
+composite-noise-fault,Grafana native,Detection,detected,True
+composite-noise-fault,Claude + edx,Detection,not_measured,False
+composite-noise-fault,Claude + gcx,Detection,not_measured,False
+composite-noise-fault,Edge Delta native,Root cause analysis,partial,True
+composite-noise-fault,Grafana native,Root cause analysis,partial,True
+composite-noise-fault,Claude + edx,Root cause analysis,partial,True
+composite-noise-fault,Claude + gcx,Root cause analysis,partial,True
+composite-noise-fault,Edge Delta native,Blast radius,partial,True
+composite-noise-fault,Grafana native,Blast radius,partial,True
+composite-noise-fault,Claude + edx,Blast radius,correct,True
+composite-noise-fault,Claude + gcx,Blast radius,partial,True
+composite-noise-fault,Edge Delta native,Final mitigation,supported,True
+composite-noise-fault,Grafana native,Final mitigation,candidate,True
+composite-noise-fault,Claude + edx,Final mitigation,supported,True
+composite-noise-fault,Claude + gcx,Final mitigation,supported,True
+composite-noise-fault,Edge Delta native,Implementation readiness,reviewable_checks_remaining,True
+composite-noise-fault,Grafana native,Implementation readiness,essential_details_missing,True
+composite-noise-fault,Claude + edx,Implementation readiness,reviewable_checks_remaining,True
+composite-noise-fault,Claude + gcx,Implementation readiness,reviewable_checks_remaining,True
+crashloop,Edge Delta native,Detection,detected,True
+crashloop,Grafana native,Detection,detected,True
+crashloop,Claude + edx,Detection,not_measured,False
+crashloop,Claude + gcx,Detection,not_measured,False
+crashloop,Edge Delta native,Root cause analysis,correct,True
+crashloop,Grafana native,Root cause analysis,incorrect,True
+crashloop,Claude + edx,Root cause analysis,correct,True
+crashloop,Claude + gcx,Root cause analysis,correct,True
+crashloop,Edge Delta native,Blast radius,correct,True
+crashloop,Grafana native,Blast radius,correct,True
+crashloop,Claude + edx,Blast radius,correct,True
+crashloop,Claude + gcx,Blast radius,correct,True
+crashloop,Edge Delta native,Final mitigation,supported,True
+crashloop,Grafana native,Final mitigation,candidate,True
+crashloop,Claude + edx,Final mitigation,supported,True
+crashloop,Claude + gcx,Final mitigation,supported,True
+crashloop,Edge Delta native,Implementation readiness,reviewable_checks_remaining,True
+crashloop,Grafana native,Implementation readiness,essential_details_missing,True
+crashloop,Claude + edx,Implementation readiness,reviewable_checks_remaining,True
+crashloop,Claude + gcx,Implementation readiness,reviewable_checks_remaining,True
+image-pull,Edge Delta native,Detection,detected,True
+image-pull,Grafana native,Detection,detected,True
+image-pull,Claude + edx,Detection,not_measured,False
+image-pull,Claude + gcx,Detection,not_measured,False
+image-pull,Edge Delta native,Root cause analysis,correct,True
+image-pull,Grafana native,Root cause analysis,correct,True
+image-pull,Claude + edx,Root cause analysis,correct,True
+image-pull,Claude + gcx,Root cause analysis,correct,True
+image-pull,Edge Delta native,Blast radius,correct,True
+image-pull,Grafana native,Blast radius,correct,True
+image-pull,Claude + edx,Blast radius,correct,True
+image-pull,Claude + gcx,Blast radius,correct,True
+image-pull,Edge Delta native,Final mitigation,supported,True
+image-pull,Grafana native,Final mitigation,supported,True
+image-pull,Claude + edx,Final mitigation,supported,True
+image-pull,Claude + gcx,Final mitigation,supported,True
+image-pull,Edge Delta native,Implementation readiness,reviewable_checks_remaining,True
+image-pull,Grafana native,Implementation readiness,reviewable_checks_remaining,True
+image-pull,Claude + edx,Implementation readiness,reviewable_checks_remaining,True
+image-pull,Claude + gcx,Implementation readiness,reviewable_checks_remaining,True
+log-error-burst,Edge Delta native,Detection,detected,True
+log-error-burst,Grafana native,Detection,not_detected,True
+log-error-burst,Claude + edx,Detection,not_measured,False
+log-error-burst,Claude + gcx,Detection,not_measured,False
+log-error-burst,Edge Delta native,Root cause analysis,incorrect,True
+log-error-burst,Grafana native,Root cause analysis,unscored,False
+log-error-burst,Claude + edx,Root cause analysis,incorrect,True
+log-error-burst,Claude + gcx,Root cause analysis,correct,True
+log-error-burst,Edge Delta native,Blast radius,incorrect,True
+log-error-burst,Grafana native,Blast radius,unscored,False
+log-error-burst,Claude + edx,Blast radius,incorrect,True
+log-error-burst,Claude + gcx,Blast radius,correct,True
+log-error-burst,Edge Delta native,Final mitigation,none,True
+log-error-burst,Grafana native,Final mitigation,unscored,False
+log-error-burst,Claude + edx,Final mitigation,incorrect_or_unsafe,True
+log-error-burst,Claude + gcx,Final mitigation,supported,True
+log-error-burst,Edge Delta native,Implementation readiness,not_applicable,False
+log-error-burst,Grafana native,Implementation readiness,unscored,False
+log-error-burst,Claude + edx,Implementation readiness,essential_details_missing,True
+log-error-burst,Claude + gcx,Implementation readiness,reviewable_checks_remaining,True
+missing-config-key,Edge Delta native,Detection,detected,True
+missing-config-key,Grafana native,Detection,detected,True
+missing-config-key,Claude + edx,Detection,not_measured,False
+missing-config-key,Claude + gcx,Detection,not_measured,False
+missing-config-key,Edge Delta native,Root cause analysis,correct,True
+missing-config-key,Grafana native,Root cause analysis,correct,True
+missing-config-key,Claude + edx,Root cause analysis,correct,True
+missing-config-key,Claude + gcx,Root cause analysis,correct,True
+missing-config-key,Edge Delta native,Blast radius,correct,True
+missing-config-key,Grafana native,Blast radius,correct,True
+missing-config-key,Claude + edx,Blast radius,correct,True
+missing-config-key,Claude + gcx,Blast radius,correct,True
+missing-config-key,Edge Delta native,Final mitigation,candidate,True
+missing-config-key,Grafana native,Final mitigation,candidate,True
+missing-config-key,Claude + edx,Final mitigation,incorrect_or_unsafe,True
+missing-config-key,Claude + gcx,Final mitigation,incorrect_or_unsafe,True
+missing-config-key,Edge Delta native,Implementation readiness,essential_details_missing,True
+missing-config-key,Grafana native,Implementation readiness,essential_details_missing,True
+missing-config-key,Claude + edx,Implementation readiness,essential_details_missing,True
+missing-config-key,Claude + gcx,Implementation readiness,essential_details_missing,True
+multi-fault,Edge Delta native,Detection,detected,True
+multi-fault,Grafana native,Detection,detected,True
+multi-fault,Claude + edx,Detection,not_measured,False
+multi-fault,Claude + gcx,Detection,not_measured,False
+multi-fault,Edge Delta native,Root cause analysis,correct,True
+multi-fault,Grafana native,Root cause analysis,incorrect,True
+multi-fault,Claude + edx,Root cause analysis,partial,True
+multi-fault,Claude + gcx,Root cause analysis,partial,True
+multi-fault,Edge Delta native,Blast radius,correct,True
+multi-fault,Grafana native,Blast radius,partial,True
+multi-fault,Claude + edx,Blast radius,incorrect,True
+multi-fault,Claude + gcx,Blast radius,correct,True
+multi-fault,Edge Delta native,Final mitigation,supported,True
+multi-fault,Grafana native,Final mitigation,incorrect_or_unsafe,True
+multi-fault,Claude + edx,Final mitigation,incorrect_or_unsafe,True
+multi-fault,Claude + gcx,Final mitigation,incorrect_or_unsafe,True
+multi-fault,Edge Delta native,Implementation readiness,reviewable_checks_remaining,True
+multi-fault,Grafana native,Implementation readiness,essential_details_missing,True
+multi-fault,Claude + edx,Implementation readiness,essential_details_missing,True
+multi-fault,Claude + gcx,Implementation readiness,essential_details_missing,True
+netpol-isolation,Edge Delta native,Detection,not_detected,True
+netpol-isolation,Grafana native,Detection,not_detected,True
+netpol-isolation,Claude + edx,Detection,not_measured,False
+netpol-isolation,Claude + gcx,Detection,not_measured,False
+netpol-isolation,Edge Delta native,Root cause analysis,unscored,False
+netpol-isolation,Grafana native,Root cause analysis,unscored,False
+netpol-isolation,Claude + edx,Root cause analysis,correct,True
+netpol-isolation,Claude + gcx,Root cause analysis,correct,True
+netpol-isolation,Edge Delta native,Blast radius,unscored,False
+netpol-isolation,Grafana native,Blast radius,unscored,False
+netpol-isolation,Claude + edx,Blast radius,correct,True
+netpol-isolation,Claude + gcx,Blast radius,correct,True
+netpol-isolation,Edge Delta native,Final mitigation,unscored,False
+netpol-isolation,Grafana native,Final mitigation,unscored,False
+netpol-isolation,Claude + edx,Final mitigation,supported,True
+netpol-isolation,Claude + gcx,Final mitigation,supported,True
+netpol-isolation,Edge Delta native,Implementation readiness,unscored,False
+netpol-isolation,Grafana native,Implementation readiness,unscored,False
+netpol-isolation,Claude + edx,Implementation readiness,reviewable_checks_remaining,True
+netpol-isolation,Claude + gcx,Implementation readiness,reviewable_checks_remaining,True
+oom,Edge Delta native,Detection,detected,True
+oom,Grafana native,Detection,detected,True
+oom,Claude + edx,Detection,not_measured,False
+oom,Claude + gcx,Detection,not_measured,False
+oom,Edge Delta native,Root cause analysis,correct,True
+oom,Grafana native,Root cause analysis,correct,True
+oom,Claude + edx,Root cause analysis,correct,True
+oom,Claude + gcx,Root cause analysis,correct,True
+oom,Edge Delta native,Blast radius,correct,True
+oom,Grafana native,Blast radius,correct,True
+oom,Claude + edx,Blast radius,correct,True
+oom,Claude + gcx,Blast radius,correct,True
+oom,Edge Delta native,Final mitigation,candidate,True
+oom,Grafana native,Final mitigation,incorrect_or_unsafe,True
+oom,Claude + edx,Final mitigation,incorrect_or_unsafe,True
+oom,Claude + gcx,Final mitigation,supported,True
+oom,Edge Delta native,Implementation readiness,essential_details_missing,True
+oom,Grafana native,Implementation readiness,essential_details_missing,True
+oom,Claude + edx,Implementation readiness,essential_details_missing,True
+oom,Claude + gcx,Implementation readiness,reviewable_checks_remaining,True
+payment-failure,Edge Delta native,Detection,detected,True
+payment-failure,Grafana native,Detection,not_detected,True
+payment-failure,Claude + edx,Detection,not_measured,False
+payment-failure,Claude + gcx,Detection,not_measured,False
+payment-failure,Edge Delta native,Root cause analysis,correct,True
+payment-failure,Grafana native,Root cause analysis,unscored,False
+payment-failure,Claude + edx,Root cause analysis,correct,True
+payment-failure,Claude + gcx,Root cause analysis,correct,True
+payment-failure,Edge Delta native,Blast radius,correct,True
+payment-failure,Grafana native,Blast radius,unscored,False
+payment-failure,Claude + edx,Blast radius,correct,True
+payment-failure,Claude + gcx,Blast radius,correct,True
+payment-failure,Edge Delta native,Final mitigation,candidate,True
+payment-failure,Grafana native,Final mitigation,unscored,False
+payment-failure,Claude + edx,Final mitigation,supported,True
+payment-failure,Claude + gcx,Final mitigation,incorrect_or_unsafe,True
+payment-failure,Edge Delta native,Implementation readiness,essential_details_missing,True
+payment-failure,Grafana native,Implementation readiness,unscored,False
+payment-failure,Claude + edx,Implementation readiness,reviewable_checks_remaining,True
+payment-failure,Claude + gcx,Implementation readiness,essential_details_missing,True
+pending-volume-claim,Edge Delta native,Detection,detected,True
+pending-volume-claim,Grafana native,Detection,detected,True
+pending-volume-claim,Claude + edx,Detection,not_measured,False
+pending-volume-claim,Claude + gcx,Detection,not_measured,False
+pending-volume-claim,Edge Delta native,Root cause analysis,correct,True
+pending-volume-claim,Grafana native,Root cause analysis,correct,True
+pending-volume-claim,Claude + edx,Root cause analysis,correct,True
+pending-volume-claim,Claude + gcx,Root cause analysis,correct,True
+pending-volume-claim,Edge Delta native,Blast radius,correct,True
+pending-volume-claim,Grafana native,Blast radius,correct,True
+pending-volume-claim,Claude + edx,Blast radius,correct,True
+pending-volume-claim,Claude + gcx,Blast radius,correct,True
+pending-volume-claim,Edge Delta native,Final mitigation,candidate,True
+pending-volume-claim,Grafana native,Final mitigation,supported,True
+pending-volume-claim,Claude + edx,Final mitigation,supported,True
+pending-volume-claim,Claude + gcx,Final mitigation,supported,True
+pending-volume-claim,Edge Delta native,Implementation readiness,essential_details_missing,True
+pending-volume-claim,Grafana native,Implementation readiness,reviewable_checks_remaining,True
+pending-volume-claim,Claude + edx,Implementation readiness,reviewable_checks_remaining,True
+pending-volume-claim,Claude + gcx,Implementation readiness,reviewable_checks_remaining,True
+pg-lock-hold,Edge Delta native,Detection,detected,True
+pg-lock-hold,Grafana native,Detection,not_detected,True
+pg-lock-hold,Claude + edx,Detection,not_measured,False
+pg-lock-hold,Claude + gcx,Detection,not_measured,False
+pg-lock-hold,Edge Delta native,Root cause analysis,correct,True
+pg-lock-hold,Grafana native,Root cause analysis,unscored,False
+pg-lock-hold,Claude + edx,Root cause analysis,correct,True
+pg-lock-hold,Claude + gcx,Root cause analysis,correct,True
+pg-lock-hold,Edge Delta native,Blast radius,correct,True
+pg-lock-hold,Grafana native,Blast radius,unscored,False
+pg-lock-hold,Claude + edx,Blast radius,correct,True
+pg-lock-hold,Claude + gcx,Blast radius,correct,True
+pg-lock-hold,Edge Delta native,Final mitigation,candidate,True
+pg-lock-hold,Grafana native,Final mitigation,unscored,False
+pg-lock-hold,Claude + edx,Final mitigation,supported,True
+pg-lock-hold,Claude + gcx,Final mitigation,incorrect_or_unsafe,True
+pg-lock-hold,Edge Delta native,Implementation readiness,essential_details_missing,True
+pg-lock-hold,Grafana native,Implementation readiness,unscored,False
+pg-lock-hold,Claude + edx,Implementation readiness,reviewable_checks_remaining,True
+pg-lock-hold,Claude + gcx,Implementation readiness,essential_details_missing,True
+probe-fail,Edge Delta native,Detection,detected,True
+probe-fail,Grafana native,Detection,detected,True
+probe-fail,Claude + edx,Detection,not_measured,False
+probe-fail,Claude + gcx,Detection,not_measured,False
+probe-fail,Edge Delta native,Root cause analysis,correct,True
+probe-fail,Grafana native,Root cause analysis,correct,True
+probe-fail,Claude + edx,Root cause analysis,correct,True
+probe-fail,Claude + gcx,Root cause analysis,correct,True
+probe-fail,Edge Delta native,Blast radius,correct,True
+probe-fail,Grafana native,Blast radius,correct,True
+probe-fail,Claude + edx,Blast radius,correct,True
+probe-fail,Claude + gcx,Blast radius,correct,True
+probe-fail,Edge Delta native,Final mitigation,supported,True
+probe-fail,Grafana native,Final mitigation,candidate,True
+probe-fail,Claude + edx,Final mitigation,supported,True
+probe-fail,Claude + gcx,Final mitigation,incorrect_or_unsafe,True
+probe-fail,Edge Delta native,Implementation readiness,reviewable_checks_remaining,True
+probe-fail,Grafana native,Implementation readiness,essential_details_missing,True
+probe-fail,Claude + edx,Implementation readiness,reviewable_checks_remaining,True
+probe-fail,Claude + gcx,Implementation readiness,essential_details_missing,True
+quota-trap,Edge Delta native,Detection,detected,True
+quota-trap,Grafana native,Detection,detected,True
+quota-trap,Claude + edx,Detection,not_measured,False
+quota-trap,Claude + gcx,Detection,not_measured,False
+quota-trap,Edge Delta native,Root cause analysis,correct,True
+quota-trap,Grafana native,Root cause analysis,correct,True
+quota-trap,Claude + edx,Root cause analysis,correct,True
+quota-trap,Claude + gcx,Root cause analysis,correct,True
+quota-trap,Edge Delta native,Blast radius,partial,True
+quota-trap,Grafana native,Blast radius,partial,True
+quota-trap,Claude + edx,Blast radius,correct,True
+quota-trap,Claude + gcx,Blast radius,correct,True
+quota-trap,Edge Delta native,Final mitigation,partial,True
+quota-trap,Grafana native,Final mitigation,supported,True
+quota-trap,Claude + edx,Final mitigation,supported,True
+quota-trap,Claude + gcx,Final mitigation,supported,True
+quota-trap,Edge Delta native,Implementation readiness,reviewable_checks_remaining,True
+quota-trap,Grafana native,Implementation readiness,reviewable_checks_remaining,True
+quota-trap,Claude + edx,Implementation readiness,reviewable_checks_remaining,True
+quota-trap,Claude + gcx,Implementation readiness,reviewable_checks_remaining,True
+redis-pressure,Edge Delta native,Detection,not_detected,True
+redis-pressure,Grafana native,Detection,not_detected,True
+redis-pressure,Claude + edx,Detection,not_measured,False
+redis-pressure,Claude + gcx,Detection,not_measured,False
+redis-pressure,Edge Delta native,Root cause analysis,unscored,False
+redis-pressure,Grafana native,Root cause analysis,unscored,False
+redis-pressure,Claude + edx,Root cause analysis,correct,True
+redis-pressure,Claude + gcx,Root cause analysis,correct,True
+redis-pressure,Edge Delta native,Blast radius,unscored,False
+redis-pressure,Grafana native,Blast radius,unscored,False
+redis-pressure,Claude + edx,Blast radius,correct,True
+redis-pressure,Claude + gcx,Blast radius,correct,True
+redis-pressure,Edge Delta native,Final mitigation,unscored,False
+redis-pressure,Grafana native,Final mitigation,unscored,False
+redis-pressure,Claude + edx,Final mitigation,supported,True
+redis-pressure,Claude + gcx,Final mitigation,supported,True
+redis-pressure,Edge Delta native,Implementation readiness,unscored,False
+redis-pressure,Grafana native,Implementation readiness,unscored,False
+redis-pressure,Claude + edx,Implementation readiness,reviewable_checks_remaining,True
+redis-pressure,Claude + gcx,Implementation readiness,reviewable_checks_remaining,True
+shm-exhaustion,Edge Delta native,Detection,detected,True
+shm-exhaustion,Grafana native,Detection,detected,True
+shm-exhaustion,Claude + edx,Detection,not_measured,False
+shm-exhaustion,Claude + gcx,Detection,not_measured,False
+shm-exhaustion,Edge Delta native,Root cause analysis,correct,True
+shm-exhaustion,Grafana native,Root cause analysis,correct,True
+shm-exhaustion,Claude + edx,Root cause analysis,correct,True
+shm-exhaustion,Claude + gcx,Root cause analysis,correct,True
+shm-exhaustion,Edge Delta native,Blast radius,correct,True
+shm-exhaustion,Grafana native,Blast radius,correct,True
+shm-exhaustion,Claude + edx,Blast radius,correct,True
+shm-exhaustion,Claude + gcx,Blast radius,correct,True
+shm-exhaustion,Edge Delta native,Final mitigation,supported,True
+shm-exhaustion,Grafana native,Final mitigation,supported,True
+shm-exhaustion,Claude + edx,Final mitigation,supported,True
+shm-exhaustion,Claude + gcx,Final mitigation,supported,True
+shm-exhaustion,Edge Delta native,Implementation readiness,reviewable_checks_remaining,True
+shm-exhaustion,Grafana native,Implementation readiness,reviewable_checks_remaining,True
+shm-exhaustion,Claude + edx,Implementation readiness,reviewable_checks_remaining,True
+shm-exhaustion,Claude + gcx,Implementation readiness,reviewable_checks_remaining,True
+slow-leak,Edge Delta native,Detection,not_detected,True
+slow-leak,Grafana native,Detection,not_detected,True
+slow-leak,Claude + edx,Detection,not_measured,False
+slow-leak,Claude + gcx,Detection,not_measured,False
+slow-leak,Edge Delta native,Root cause analysis,unscored,False
+slow-leak,Grafana native,Root cause analysis,unscored,False
+slow-leak,Claude + edx,Root cause analysis,correct,True
+slow-leak,Claude + gcx,Root cause analysis,correct,True
+slow-leak,Edge Delta native,Blast radius,unscored,False
+slow-leak,Grafana native,Blast radius,unscored,False
+slow-leak,Claude + edx,Blast radius,correct,True
+slow-leak,Claude + gcx,Blast radius,correct,True
+slow-leak,Edge Delta native,Final mitigation,unscored,False
+slow-leak,Grafana native,Final mitigation,unscored,False
+slow-leak,Claude + edx,Final mitigation,supported,True
+slow-leak,Claude + gcx,Final mitigation,supported,True
+slow-leak,Edge Delta native,Implementation readiness,unscored,False
+slow-leak,Grafana native,Implementation readiness,unscored,False
+slow-leak,Claude + edx,Implementation readiness,reviewable_checks_remaining,True
+slow-leak,Claude + gcx,Implementation readiness,reviewable_checks_remaining,True
+stale-db-credentials,Edge Delta native,Detection,detected,True
+stale-db-credentials,Grafana native,Detection,not_detected,True
+stale-db-credentials,Claude + edx,Detection,not_measured,False
+stale-db-credentials,Claude + gcx,Detection,not_measured,False
+stale-db-credentials,Edge Delta native,Root cause analysis,correct,True
+stale-db-credentials,Grafana native,Root cause analysis,unscored,False
+stale-db-credentials,Claude + edx,Root cause analysis,correct,True
+stale-db-credentials,Claude + gcx,Root cause analysis,correct,True
+stale-db-credentials,Edge Delta native,Blast radius,correct,True
+stale-db-credentials,Grafana native,Blast radius,unscored,False
+stale-db-credentials,Claude + edx,Blast radius,correct,True
+stale-db-credentials,Claude + gcx,Blast radius,incorrect,True
+stale-db-credentials,Edge Delta native,Final mitigation,supported,True
+stale-db-credentials,Grafana native,Final mitigation,unscored,False
+stale-db-credentials,Claude + edx,Final mitigation,supported,True
+stale-db-credentials,Claude + gcx,Final mitigation,supported,True
+stale-db-credentials,Edge Delta native,Implementation readiness,reviewable_checks_remaining,True
+stale-db-credentials,Grafana native,Implementation readiness,unscored,False
+stale-db-credentials,Claude + edx,Implementation readiness,reviewable_checks_remaining,True
+stale-db-credentials,Claude + gcx,Implementation readiness,reviewable_checks_remaining,True
+traffic-flood,Edge Delta native,Detection,detected,True
+traffic-flood,Grafana native,Detection,not_detected,True
+traffic-flood,Claude + edx,Detection,not_measured,False
+traffic-flood,Claude + gcx,Detection,not_measured,False
+traffic-flood,Edge Delta native,Root cause analysis,incorrect,True
+traffic-flood,Grafana native,Root cause analysis,unscored,False
+traffic-flood,Claude + edx,Root cause analysis,correct,True
+traffic-flood,Claude + gcx,Root cause analysis,correct,True
+traffic-flood,Edge Delta native,Blast radius,partial,True
+traffic-flood,Grafana native,Blast radius,unscored,False
+traffic-flood,Claude + edx,Blast radius,correct,True
+traffic-flood,Claude + gcx,Blast radius,correct,True
+traffic-flood,Edge Delta native,Final mitigation,none,True
+traffic-flood,Grafana native,Final mitigation,unscored,False
+traffic-flood,Claude + edx,Final mitigation,supported,True
+traffic-flood,Claude + gcx,Final mitigation,supported,True
+traffic-flood,Edge Delta native,Implementation readiness,not_applicable,False
+traffic-flood,Grafana native,Implementation readiness,unscored,False
+traffic-flood,Claude + edx,Implementation readiness,reviewable_checks_remaining,True
+traffic-flood,Claude + gcx,Implementation readiness,reviewable_checks_remaining,True
+volume-affinity-conflict,Edge Delta native,Detection,detected,True
+volume-affinity-conflict,Grafana native,Detection,detected,True
+volume-affinity-conflict,Claude + edx,Detection,not_measured,False
+volume-affinity-conflict,Claude + gcx,Detection,not_measured,False
+volume-affinity-conflict,Edge Delta native,Root cause analysis,correct,True
+volume-affinity-conflict,Grafana native,Root cause analysis,correct,True
+volume-affinity-conflict,Claude + edx,Root cause analysis,correct,True
+volume-affinity-conflict,Claude + gcx,Root cause analysis,correct,True
+volume-affinity-conflict,Edge Delta native,Blast radius,correct,True
+volume-affinity-conflict,Grafana native,Blast radius,correct,True
+volume-affinity-conflict,Claude + edx,Blast radius,correct,True
+volume-affinity-conflict,Claude + gcx,Blast radius,correct,True
+volume-affinity-conflict,Edge Delta native,Final mitigation,candidate,True
+volume-affinity-conflict,Grafana native,Final mitigation,candidate,True
+volume-affinity-conflict,Claude + edx,Final mitigation,incorrect_or_unsafe,True
+volume-affinity-conflict,Claude + gcx,Final mitigation,incorrect_or_unsafe,True
+volume-affinity-conflict,Edge Delta native,Implementation readiness,essential_details_missing,True
+volume-affinity-conflict,Grafana native,Implementation readiness,essential_details_missing,True
+volume-affinity-conflict,Claude + edx,Implementation readiness,essential_details_missing,True
+volume-affinity-conflict,Claude + gcx,Implementation readiness,essential_details_missing,True

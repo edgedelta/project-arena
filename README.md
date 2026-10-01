@@ -56,6 +56,8 @@ This table uses the 12 incident types investigated by both native products, with
 | Supported final mitigation | **7/12** (58.3%) | **5/12** (41.7%) | **8/12** (66.7%) | **8/12** (66.7%) |
 | Implementation readiness | **8/12** (66.7%) | **5/12** (41.7%) | **8/12** (66.7%) | **8/12** (66.7%) |
 
+[View results for every scenario](docs/scenario-results.md) · [Download CSV](docs/scenario-results.csv)
+
 ### What the metrics mean
 
 | Metric | What earns credit |

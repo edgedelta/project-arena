@@ -1,5 +1,7 @@
 # Benchmark results
 
+[Per-scenario results](scenario-results.md) · [Download CSV](scenario-results.csv)
+
 We compared native Edge Delta, native Grafana, Claude + edx, and Claude + gcx across 21 Kubernetes incident scenarios. The tables evaluate 72 completed investigations: 18 native Edge Delta, 12 native Grafana, and 21 for each Claude configuration. Every column uses the same [scoring rubric](scoring-rubric-v1.0.0.md) and judge settings.
 
 This page shows detection, diagnosis and final recommendation results. Action-safety and intermediate-advice scores remain separate in the complete scoring reports and are not displayed here.
