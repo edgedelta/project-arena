@@ -122,3 +122,5 @@ python3 -m bench packet --archive archive.json \
 Each scenario includes an `answer-key.json` matched to its program, manifests and shop dependencies. The scorer loads it automatically. Use `--truth` for a customized scenario. Keys are judge-only and separately hashed; keep them out of the investigated product’s evidence sources.
 
 The default [scoring rubric](../docs/scoring-rubric-v1.0.0.md) covers diagnosis, final mitigation, implementation readiness, action safety and intermediate advice. Product exporters, manual import, external AI judges and manual judges remain fully replaceable; no Edge Delta credentials are required.
+
+Quota and admission-webhook reset checks allow up to 20 minutes for Kubernetes to retry pod creation after admission failures. Other baseline recovery checks wait three minutes. A timeout reports unconfirmed recovery; the runner does not force a restart.

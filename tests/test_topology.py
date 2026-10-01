@@ -123,6 +123,16 @@ class OperationalTests(unittest.TestCase):
 
 
 class RetirementTests(unittest.TestCase):
+    def test_admission_recovery_allows_controller_backoff_without_mutation(self):
+        for scenario in ('quota-trap', 'admission-webhook-outage', 'crashloop'):
+            with self.subTest(scenario=scenario), patch.object(retirement, 'baseline_failures', side_effect=[['recommendation is not 1/1 available'], []]), patch.object(retirement.time, 'monotonic', side_effect=[0, 200]), patch.object(retirement.time, 'sleep'), patch.object(retirement.cluster, 'kube') as kube:
+                if scenario == 'crashloop':
+                    with self.assertRaisesRegex(ValueError, 'wait expired; recovery is not yet confirmed'):
+                        retirement.wait_baseline('ctx', retirement.recovery_timeout(scenario))
+                else:
+                    self.assertTrue(retirement.wait_baseline('ctx', retirement.recovery_timeout(scenario))['passed'])
+                kube.assert_not_called()
+
     def test_cleanup_is_scenario_specific_and_redis_order_matches_parent(self):
         with patch('bench.retirement.cluster.kube') as kube, patch.object(retirement, 'psql') as psql:
             self.assertEqual(retirement.restore('ctx', ''), [])

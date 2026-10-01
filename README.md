@@ -29,30 +29,32 @@ Run commands from the Project Arena directory. Cluster setup, product integratio
 
 ## Benchmark results
 
-We compared **Edge Delta’s native AI investigations** with **Grafana’s native AI investigations** across 21 Kubernetes incident scenarios, including memory failures, configuration errors, storage problems, and network isolation. We measured whether each product detected the incident, then evaluated its final investigation for the correct cause, affected services, and proposed mitigation. Both products were scored against the same incident facts and rubric using GPT-6-Astra.
+We compared **Edge Delta’s native AI investigations**, **Grafana’s native AI investigations**, and **Claude using each platform’s observability CLI** across 21 Kubernetes incident scenarios. `edx` provides access to Edge Delta; `gcx` provides access to Grafana. All final investigations were evaluated against the same incident facts and scoring rubric using GPT-6-Astra.
 
 ### Detection and investigation results
 
-Edge Delta detected and investigated 18 scenarios; Grafana detected and investigated 12. Detection is measured out of all 21 scenarios. Investigation scores use the cases each product investigated; implementation readiness includes cases with a proposed remedy.
+Edge Delta detected and investigated 18 scenarios; Grafana detected and investigated 12. Claude was started externally for all 21 scenarios on each platform: **16 alerts and 5 customer reports** with edx, and **12 alerts and 9 customer reports** with gcx. Detection was not independently measured for Claude, so those cells are shown as **—**.
 
-| Metric | Edge Delta native | Grafana native |
-|:---|:---:|:---:|
-| Detection | **18/21** (85.7%) | **12/21** (57.1%) |
-| Root cause analysis | **15/18** (83.3%) | **9/12** (75.0%) |
-| Blast radius | **12/18** (66.7%) | **8/12** (66.7%) |
-| Supported final mitigation | **8/18** (44.4%) | **5/12** (41.7%) |
-| Implementation readiness | **9/16** (56.2%) | **5/12** (41.7%) |
+Investigation scores use every completed investigation for that column. Implementation readiness excludes cases with no mitigation proposal.
+
+| Metric | Edge Delta native | Grafana native | Claude + edx | Claude + gcx |
+| :--- | :---: | :---: | :---: | :---: |
+| Detection | **18/21** (85.7%) | **12/21** (57.1%) | — | — |
+| Root cause analysis | **15/18** (83.3%) | **9/12** (75.0%) | **18/21** (85.7%) | **19/21** (90.5%) |
+| Blast radius | **12/18** (66.7%) | **8/12** (66.7%) | **18/21** (85.7%) | **18/21** (85.7%) |
+| Supported final mitigation | **8/18** (44.4%) | **5/12** (41.7%) | **16/21** (76.2%) | **15/21** (71.4%) |
+| Implementation readiness | **9/16** (56.2%) | **5/12** (41.7%) | **16/21** (76.2%) | **15/21** (71.4%) |
 
 ### Comparison on the same 12 incidents
 
-This table compares investigation quality only on incidents **both products investigated**.
+This table uses the 12 incident types investigated by both native products, with the corresponding Claude investigations. It controls which scenarios are included, not differences in launch prompts, timing or available evidence.
 
-| Metric | Edge Delta native | Grafana native |
-|:---|:---:|:---:|
-| Root cause analysis | **11/12** (91.7%) | **9/12** (75.0%) |
-| Blast radius | **9/12** (75.0%) | **8/12** (66.7%) |
-| Supported final mitigation | **7/12** (58.3%) | **5/12** (41.7%) |
-| Implementation readiness | **8/12** (66.7%) | **5/12** (41.7%) |
+| Metric | Edge Delta native | Grafana native | Claude + edx | Claude + gcx |
+| :--- | :---: | :---: | :---: | :---: |
+| Root cause analysis | **11/12** (91.7%) | **9/12** (75.0%) | **10/12** (83.3%) | **10/12** (83.3%) |
+| Blast radius | **9/12** (75.0%) | **8/12** (66.7%) | **10/12** (83.3%) | **10/12** (83.3%) |
+| Supported final mitigation | **7/12** (58.3%) | **5/12** (41.7%) | **8/12** (66.7%) | **8/12** (66.7%) |
+| Implementation readiness | **8/12** (66.7%) | **5/12** (41.7%) | **8/12** (66.7%) | **8/12** (66.7%) |
 
 ### What the metrics mean
 
@@ -64,7 +66,7 @@ This table compares investigation quality only on incidents **both products inve
 | Supported final mitigation | The final recommendation gives a concrete, supported fix or safe containment for the incident, with no remaining incorrect or unsafe advice. |
 | Implementation readiness | The proposal specifies the correction and essential details; normal review, implementation, and rollout checks may remain. |
 
-Mitigation and readiness measure proposals, not executed repairs or verified recovery. Causal change identification had no eligible cases in these runs.
+Mitigation and readiness measure proposals, not executed repairs or verified recovery.
 
 See the [scoring rubric](docs/scoring-rubric-v1.0.0.md) for grading rules and [full results and methodology](docs/benchmark-results.md) for verdict breakdowns and evaluation details.
 
@@ -239,12 +241,6 @@ The result is `judgment.json` in the case directory: scores, explanations and su
 
 You can score the same saved investigation again without rerunning the incident. See [rescoring and saved results](docs/integrations.md#rescoring-and-saved-results) for details.
 
-### Causal change identification
-
-This metric asks whether the final investigation identifies the change that caused the incident and explains why. Either deployment path can support it: the scenario must supply a known introducing change, its diff, and a recorded check that the investigating product can access that history. Installing Argo CD or connecting a repository alone does not make a scenario eligible.
-
-Only eligible cases enter this metric's denominator; the detail report lists the breakdown. See [causal change setup](docs/causal-changes.md) for the required evidence.
-
 ## How to compare results
 
 ```sh
@@ -258,7 +254,6 @@ The summary puts metrics in rows and products in columns. Each cell shows **succ
 |---|---:|---:|
 | Detection | 8/10 (80.0%) | 7/10 (70.0%) |
 | Root cause analysis | 6/8 (75.0%) | 5/7 (71.4%) |
-| Causal change identification | 4/6 (66.7%) | 3/6 (50.0%) |
 | Final mitigation | 5/8 (62.5%) | 4/7 (57.1%) |
 
 The actual report includes every scoring dimension. The detail table lists each scenario's verdict and whether it is included in the denominator. Undetected cases count against detection rate; not-applicable cases are excluded from the relevant scoring denominator. Insufficient evidence stays in the denominator for applicable scored cases. Missing measurements and unscored investigations remain visible in the details. A dash means no applicable scored cases.
@@ -295,7 +290,6 @@ Remove application resources and any provisioned volumes or load balancers, then
 - Configured file paths are relative to the run file. Explicit CLI paths and judge executable arguments are relative to the current working directory.
 - Use `packet --rubric path/to/rubric.md` for a custom rubric. Keep the same rubric and judge settings across compared products.
 - [Product exporters and judge formats](docs/integrations.md) describe custom integrations and evidence requirements.
-- [Causal change setup](docs/causal-changes.md) explains the repository history, deployment evidence and access checks required for that metric.
 - [Scenario implementation guide](scenarios/README.md) covers manifests, image builds, verification and reset behavior.
 
 To run the offline tests:

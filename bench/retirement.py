@@ -118,11 +118,17 @@ def baseline_failures(context):
     return failures
 
 
+def recovery_timeout(scenario):
+    # Failed admission creates can back off for 1000 seconds before the
+    # ReplicaSet retries. Allow that retry plus startup without forcing it.
+    return 1200 if scenario in ("quota-trap", "admission-webhook-outage") else 180
+
+
 def wait_baseline(context, timeout=180):
     deadline = time.monotonic() + timeout
     while True:
         try: failures = baseline_failures(context)
         except (RuntimeError, ValueError, KeyError) as error: failures = ['baseline inspection failed: ' + type(error).__name__]
         if not failures: return {'passed': True, 'checks': 'parent retirement invariants'}
-        if time.monotonic() >= deadline: raise ValueError('baseline is not restored: ' + '; '.join(failures))
+        if time.monotonic() >= deadline: raise ValueError('baseline recovery wait expired; recovery is not yet confirmed: ' + '; '.join(failures))
         time.sleep(3)

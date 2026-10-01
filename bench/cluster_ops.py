@@ -145,7 +145,7 @@ def reset(context, confirmed=False):
     if baseline["data"] != flags["data"]: apply(context, baseline)
     retirement.wait_pruned(context)
     actions = retirement.restore(context, scenario)
-    checks = retirement.wait_baseline(context)
+    checks = retirement.wait_baseline(context, timeout=retirement.recovery_timeout(scenario))
     result = verify(context, "healthy", 180)
     if not result["observed"]: raise ValueError("fault retired, but the healthy application path has not recovered")
     set_state(context, current["registry"], current["tag"])

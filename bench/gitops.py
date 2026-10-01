@@ -223,7 +223,7 @@ def cleanup(config, retired_scenario='', operation_id=None):
         actions = retirement.restore(context, retired_scenario)
         if operation_id:
             receipt(context, operation_id, {'phase': 'cleanup_done', 'retired_scenario': retired_scenario, 'finished_at': datetime.datetime.now(datetime.timezone.utc).isoformat()})
-    checks = retirement.wait_baseline(context)
+    checks = retirement.wait_baseline(context, timeout=retirement.recovery_timeout(retired_scenario))
     result = cluster.verify(context, 'healthy', 180)
     result.update(retirement=checks, cleanup_actions=actions)
     return result
