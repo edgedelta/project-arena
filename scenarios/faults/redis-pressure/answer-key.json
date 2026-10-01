@@ -1,0 +1,21 @@
+{
+  "scenario": "redis-pressure",
+  "ground_truth": {
+    "cause": "In batch, cache-warmer-fill inserts non-expiring warm:* keys into Redis in datastore, then sets maxmemory to 128mb. Redis uses noeviction; its filled keyspace exceeds that budget, so writes from cache-warmer and shop cart are rejected with OOM.",
+    "impact": "The cause is Redis memory pressure in datastore, driven by batch writers. Cart writes fail and frontend returns errors downstream; payment and PostgreSQL/recommendation are not causal components.",
+    "mitigation": "Stop or bound the batch warmer producers, safely remove their disposable warm:* keyspace and restore a viable memory budget (baseline 256mb) with verified headroom. Add bounded retention/TTL for continuing warmers. Verify Redis writes, cart and frontend recover. Do not indiscriminately flush unrelated data or only restart cart.",
+    "causal_change": {
+      "eligible": false,
+      "reason": "This scenario does not provide a controlled introducing commit and recorded product access to its history."
+    }
+  },
+  "implementation_sources": [
+    "scenarios/faults/redis-pressure/manifests/deployment.yaml",
+    "scenarios/faults/redis-pressure/manifests/job.yaml",
+    "scenarios/faults/redis-pressure/manifests/kustomization.yaml",
+    "scenarios/faults/redis-pressure/run.sh",
+    "bench/app_manifests.py",
+    "scenarios/shop/manifests.json",
+    "scenarios/shop/flags.json"
+  ]
+}

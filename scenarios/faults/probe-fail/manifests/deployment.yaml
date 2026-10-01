@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: webhook-relay
+  namespace: batch
+  labels: {app: webhook-relay}
+spec:
+  replicas: 1
+  selector: {matchLabels: {app: webhook-relay}}
+  template:
+    metadata:
+      labels: {app: webhook-relay}
+    spec:
+      containers:
+        - name: main
+          image: fixture.local/webhook-relay:v1
+          readinessProbe:
+            tcpSocket: {port: 9999}
+            periodSeconds: 5
+          livenessProbe:
+            tcpSocket: {port: 9999}
+            initialDelaySeconds: 20
+            periodSeconds: 10
+          resources:
+            requests: {cpu: 10m, memory: 16Mi}
+            limits: {memory: 32Mi}

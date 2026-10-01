@@ -1,0 +1,7 @@
+Shop application based on OpenTelemetry Demo 3.0.0
+Copyright The OpenTelemetry Authors
+Source: https://github.com/open-telemetry/opentelemetry-demo
+Revision: 1755859a9de82c2e5e225be68abc401a5ebf2b4f
+
+Local changes rename service/protocol and feature-flag identifiers, messages,
+product catalog data, and build paths. build.sh records these modifications.

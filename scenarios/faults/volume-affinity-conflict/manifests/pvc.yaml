@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: index-store
+  namespace: batch
+  labels: {app: index-store}
+spec:
+  storageClassName: local-archive
+  accessModes: [ReadWriteOnce]
+  resources:
+    requests:
+      storage: 1Gi

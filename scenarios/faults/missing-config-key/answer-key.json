@@ -1,0 +1,21 @@
+{
+  "scenario": "missing-config-key",
+  "ground_truth": {
+    "cause": "In batch, config-loader requires ENDPOINT_URL from ConfigMap config-loader-settings, which exists but contains only LOG_LEVEL and REGION. The required key is absent, causing CreateContainerConfigError.",
+    "impact": "Config-loader cannot start. Its image is not the cause, and the entire ConfigMap is not missing; the shop has no dependency on this worker.",
+    "mitigation": "Reconcile the ENDPOINT_URL reference with the intended configuration, or stop the unused worker as containment. No intended endpoint value is specified by the fixture; inventing one is not supported. Merely asking someone to find the endpoint is a candidate rather than a concrete completed recommendation.",
+    "causal_change": {
+      "eligible": false,
+      "reason": "This scenario does not provide a controlled introducing commit and recorded product access to its history."
+    }
+  },
+  "implementation_sources": [
+    "scenarios/faults/missing-config-key/manifests/configmap.yaml",
+    "scenarios/faults/missing-config-key/manifests/deployment.yaml",
+    "scenarios/faults/missing-config-key/manifests/kustomization.yaml",
+    "scenarios/faults/missing-config-key/run.sh",
+    "bench/app_manifests.py",
+    "scenarios/shop/manifests.json",
+    "scenarios/shop/flags.json"
+  ]
+}

@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: thumbnailer
+  namespace: batch
+  labels: {app: thumbnailer}
+spec:
+  replicas: 1
+  selector: {matchLabels: {app: thumbnailer}}
+  template:
+    metadata:
+      labels: {app: thumbnailer}
+    spec:
+      containers:
+        - name: main
+          image: fixture.local/thumbnailer:v1
+          resources:
+            requests: {cpu: 10m, memory: 32Mi}
+            limits: {memory: 64Mi}

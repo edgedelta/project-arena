@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: platform-limits
+  namespace: shop
+  labels: {app: platform-limits}
+spec:
+  hard:
+    requests.cpu: "8"

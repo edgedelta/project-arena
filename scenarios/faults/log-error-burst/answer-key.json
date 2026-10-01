@@ -1,0 +1,20 @@
+{
+  "scenario": "log-error-burst",
+  "ground_truth": {
+    "cause": "In batch, audit-exporter emits scripted ERROR upstream gateway timeout messages every 0.1 seconds. It makes no dependency requests.",
+    "impact": "This is log noise, not evidence of a gateway or shop service outage.",
+    "mitigation": "Stop or correct the noisy audit-exporter logging behavior, or explicitly recommend no operational repair because no service fault is present. Under this rubric no remedial proposal receives none; it is not automatically a supported mitigation. Do not restart or scale an alleged upstream gateway.",
+    "causal_change": {
+      "eligible": false,
+      "reason": "This scenario does not provide a controlled introducing commit and recorded product access to its history."
+    }
+  },
+  "implementation_sources": [
+    "scenarios/faults/log-error-burst/manifests/deployment.yaml",
+    "scenarios/faults/log-error-burst/manifests/kustomization.yaml",
+    "scenarios/faults/log-error-burst/run.sh",
+    "bench/app_manifests.py",
+    "scenarios/shop/manifests.json",
+    "scenarios/shop/flags.json"
+  ]
+}

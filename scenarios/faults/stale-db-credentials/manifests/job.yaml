@@ -1,0 +1,29 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: credential-rotator
+  namespace: batch
+  labels: {app: credential-rotator}
+spec:
+  backoffLimit: 1
+  template:
+    metadata:
+      labels: {app: credential-rotator}
+    spec:
+      restartPolicy: Never
+      automountServiceAccountToken: false
+      containers:
+        - name: main
+          image: fixture.local/credential-rotator:v1
+          env:
+            - {name: PGHOST, value: postgres.datastore.svc.cluster.local}
+            - {name: PGPORT, value: "5432"}
+            - {name: PGDATABASE, value: shop_db}
+            - {name: ROTATE_ROLE, value: shop_user}
+            - name: PGUSER
+              valueFrom: {secretKeyRef: {name: db-maintenance, key: PGUSER}}
+            - name: PGPASSWORD
+              valueFrom: {secretKeyRef: {name: db-maintenance, key: PGPASSWORD}}
+          resources:
+            requests: {cpu: 25m, memory: 32Mi}
+            limits: {memory: 64Mi}

@@ -1,0 +1,18 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: asset-syncer
+  namespace: batch
+  labels: {app: asset-syncer}
+spec:
+  replicas: 1
+  selector: {matchLabels: {app: asset-syncer}}
+  template:
+    metadata:
+      labels: {app: asset-syncer}
+    spec:
+      containers:
+        - name: main
+          image: fixture.local/asset-syncer:missing-hotfix
+          resources:
+            requests: {cpu: 10m, memory: 16Mi}

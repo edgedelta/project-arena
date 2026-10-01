@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: config-loader
+  namespace: batch
+  labels: {app: config-loader}
+spec:
+  replicas: 1
+  selector: {matchLabels: {app: config-loader}}
+  template:
+    metadata:
+      labels: {app: config-loader}
+    spec:
+      terminationGracePeriodSeconds: 0
+      automountServiceAccountToken: false
+      containers:
+        - name: main
+          image: fixture.local/config-loader:v1
+          env:
+            - name: ENDPOINT_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: config-loader-settings
+                  key: ENDPOINT_URL
+          resources:
+            requests: {cpu: 10m, memory: 16Mi}
+            limits: {memory: 32Mi}

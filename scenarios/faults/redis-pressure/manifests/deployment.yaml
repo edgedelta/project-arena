@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cache-warmer
+  namespace: batch
+  labels: {app: cache-warmer}
+spec:
+  replicas: 1
+  selector:
+    matchLabels: {app: cache-warmer}
+  template:
+    metadata:
+      labels: {app: cache-warmer}
+    spec:
+      containers:
+        - name: writer
+          image: fixture.local/cache-warmer:v1
+          args: ["refresh"]
+          env:
+            - {name: REDIS_ADDR, value: "redis.datastore.svc.cluster.local"}
+            - {name: REDIS_PORT, value: "6379"}
+            - {name: KEY_PREFIX, value: "warm"}
+            - {name: PAYLOAD_BYTES, value: "4096"}
+          resources:
+            requests: {cpu: 25m, memory: 32Mi}
+            limits: {memory: 64Mi}

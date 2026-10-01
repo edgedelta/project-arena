@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: report-generator
+  namespace: batch
+  labels: {app: report-generator}
+spec:
+  replicas: 1
+  selector: {matchLabels: {app: report-generator}}
+  template:
+    metadata:
+      labels: {app: report-generator}
+    spec:
+      containers:
+        - name: main
+          image: fixture.local/report-generator:v1
+          resources:
+            requests: {cpu: 10m, memory: 16Mi}
+            limits: {memory: 32Mi}

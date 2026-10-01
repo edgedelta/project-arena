@@ -1,0 +1,11 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: restrict-cart-ingress
+  namespace: shop
+  labels: {app: restrict-cart-ingress}
+spec:
+  podSelector:
+    matchLabels: {app.kubernetes.io/name: cart}
+  policyTypes: [Ingress]
+  ingress: []

@@ -1,0 +1,22 @@
+{
+  "scenario": "volume-affinity-conflict",
+  "ground_truth": {
+    "cause": "PV index-store is a local volume with nodeAffinity requiring storage-tier=nvme-archive, which no node carries. The batch/index-store claim can bind to that PV, but the pod cannot be placed on a compatible node.",
+    "impact": "Index-store is blocked by volume topology. This is not general CPU/memory shortage, and it differs from a missing StorageClass/unbound-claim fault. Confirm the actual binding state in run evidence.",
+    "mitigation": "Place the workload on a node that genuinely has the intended local storage and correct label, or safely migrate/reprovision the disposable volume to usable storage after verifying data and reclaim implications. Stop the unused workload as containment. Blindly labeling a node without the data/path, deleting a bound volume, or adding unlabeled nodes is not a supported repair.",
+    "causal_change": {
+      "eligible": false,
+      "reason": "This scenario does not provide a controlled introducing commit and recorded product access to its history."
+    }
+  },
+  "implementation_sources": [
+    "scenarios/faults/volume-affinity-conflict/manifests/deployment.yaml",
+    "scenarios/faults/volume-affinity-conflict/manifests/kustomization.yaml",
+    "scenarios/faults/volume-affinity-conflict/manifests/pv.yaml",
+    "scenarios/faults/volume-affinity-conflict/manifests/pvc.yaml",
+    "scenarios/faults/volume-affinity-conflict/run.sh",
+    "bench/app_manifests.py",
+    "scenarios/shop/manifests.json",
+    "scenarios/shop/flags.json"
+  ]
+}

@@ -1,0 +1,27 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: cache-warmer-fill
+  namespace: batch
+  labels: {app: cache-warmer}
+spec:
+  backoffLimit: 2
+  template:
+    metadata:
+      labels: {app: cache-warmer}
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: fill
+          image: fixture.local/cache-warmer:v1
+          args: ["fill"]
+          env:
+            - {name: REDIS_ADDR, value: "redis.datastore.svc.cluster.local"}
+            - {name: REDIS_PORT, value: "6379"}
+            - {name: KEY_PREFIX, value: "warm"}
+            - {name: FILL_TARGET_BYTES, value: "251658240"}
+            - {name: CACHE_MAXMEMORY, value: "128mb"}
+            - {name: PAYLOAD_BYTES, value: "65536"}
+          resources:
+            requests: {cpu: 100m, memory: 32Mi}
+            limits: {memory: 64Mi}

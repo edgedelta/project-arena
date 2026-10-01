@@ -1,0 +1,20 @@
+{
+  "scenario": "slow-leak",
+  "ground_truth": {
+    "cause": "In batch, session-indexer writes another MiB each minute into /cache/data on a memory-backed emptyDir. It has no retention bound, a 96Mi container limit and a 256Mi volume limit. The cache growth can eventually exhaust the container budget.",
+    "impact": "The growing cache is contained to this batch worker. Its latency and timeout log messages are scripted; they do not establish real downstream request degradation.",
+    "mitigation": "Bound cache size/retention and reclaim or evict obsolete entries, or stop the worker as containment. Restarting or raising the limit alone does not remove the unbounded growth. Verify the memory/cache trend stabilizes over time.",
+    "causal_change": {
+      "eligible": false,
+      "reason": "This scenario does not provide a controlled introducing commit and recorded product access to its history."
+    }
+  },
+  "implementation_sources": [
+    "scenarios/faults/slow-leak/manifests/deployment.yaml",
+    "scenarios/faults/slow-leak/manifests/kustomization.yaml",
+    "scenarios/faults/slow-leak/run.sh",
+    "bench/app_manifests.py",
+    "scenarios/shop/manifests.json",
+    "scenarios/shop/flags.json"
+  ]
+}

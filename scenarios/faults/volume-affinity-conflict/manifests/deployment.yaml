@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: index-store
+  namespace: batch
+  labels: {app: index-store}
+spec:
+  replicas: 1
+  selector: {matchLabels: {app: index-store}}
+  template:
+    metadata:
+      labels: {app: index-store}
+    spec:
+      terminationGracePeriodSeconds: 0
+      automountServiceAccountToken: false
+      containers:
+        - name: main
+          image: fixture.local/index-store:v1
+          volumeMounts:
+            - name: index
+              mountPath: /index
+          resources:
+            requests: {cpu: 10m, memory: 16Mi}
+            limits: {memory: 32Mi}
+      volumes:
+        - name: index
+          persistentVolumeClaim:
+            claimName: index-store

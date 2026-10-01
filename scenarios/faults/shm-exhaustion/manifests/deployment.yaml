@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: media-transcoder
+  namespace: batch
+  labels: {app: media-transcoder}
+spec:
+  replicas: 1
+  selector: {matchLabels: {app: media-transcoder}}
+  template:
+    metadata:
+      labels: {app: media-transcoder}
+    spec:
+      terminationGracePeriodSeconds: 0
+      automountServiceAccountToken: false
+      containers:
+        - name: main
+          image: fixture.local/media-transcoder:v1
+          env:
+            - {name: SCRATCH_MIB, value: "128"}
+          resources:
+            requests: {cpu: 10m, memory: 32Mi}
+            limits: {memory: 128Mi}

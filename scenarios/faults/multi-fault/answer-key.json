@@ -1,0 +1,18 @@
+{
+  "scenario": "multi-fault",
+  "ground_truth": {
+    "cause": "Two independent faults coexist: batch/report-generator unconditionally exits 1, and batch cache-warmer fills datastore Redis warm:* keys then lowers maxmemory to 128mb under noeviction, rejecting writes.",
+    "impact": "Redis pressure affects shop cart and frontend; prioritize that user-facing path over the contained report-generator crashloop. The worker does not depend on Redis merely because faults coincide.",
+    "mitigation": "Address both: bound/stop warmers, safely clear their disposable keyspace and restore a viable Redis budget; correct report-generator unconditional failure or stop that unused worker as containment. Verify cart/frontend and worker stability. Fixing only one causal fault is partial coverage.",
+    "causal_change": {
+      "eligible": false,
+      "reason": "This scenario does not provide a controlled introducing commit and recorded product access to its history."
+    }
+  },
+  "implementation_sources": [
+    "scenarios/faults/multi-fault/manifests/kustomization.yaml",
+    "bench/app_manifests.py",
+    "scenarios/shop/manifests.json",
+    "scenarios/shop/flags.json"
+  ]
+}

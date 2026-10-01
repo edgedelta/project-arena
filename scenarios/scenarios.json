@@ -1,0 +1,168 @@
+{
+  "crashloop": {
+    "path": "faults/crashloop/manifests",
+    "dependencies": [
+      "shop application deployed with bench.scenarios deploy",
+      "operator-built images"
+    ],
+    "image": "report-generator"
+  },
+  "payment-failure": {
+    "path": "faults/payment-failure/manifests",
+    "dependencies": [
+      "shop application deployed with bench.scenarios deploy",
+      "operator-built images"
+    ]
+  },
+  "image-pull": {
+    "path": "faults/image-pull/manifests",
+    "dependencies": [
+      "shop application deployed with bench.scenarios deploy",
+      "operator-built images",
+      "missing-hotfix image tag must not exist"
+    ],
+    "image": "asset-syncer"
+  },
+  "cart-failure": {
+    "path": "faults/cart-failure/manifests",
+    "dependencies": [
+      "shop application deployed with bench.scenarios deploy",
+      "operator-built images"
+    ]
+  },
+  "probe-fail": {
+    "path": "faults/probe-fail/manifests",
+    "dependencies": [
+      "shop application deployed with bench.scenarios deploy",
+      "operator-built images"
+    ],
+    "image": "webhook-relay"
+  },
+  "missing-config-key": {
+    "path": "faults/missing-config-key/manifests",
+    "dependencies": [
+      "shop application deployed with bench.scenarios deploy",
+      "operator-built images"
+    ],
+    "image": "config-loader"
+  },
+  "log-error-burst": {
+    "path": "faults/log-error-burst/manifests",
+    "dependencies": [
+      "shop application deployed with bench.scenarios deploy",
+      "operator-built images"
+    ],
+    "image": "audit-exporter"
+  },
+  "oom": {
+    "path": "faults/oom/manifests",
+    "dependencies": [
+      "shop application deployed with bench.scenarios deploy",
+      "operator-built images"
+    ],
+    "image": "thumbnailer"
+  },
+  "redis-pressure": {
+    "path": "faults/redis-pressure/manifests",
+    "dependencies": [
+      "shop application deployed with bench.scenarios deploy",
+      "operator-built images"
+    ],
+    "image": "cache-warmer"
+  },
+  "quota-trap": {
+    "path": "faults/quota-trap/manifests",
+    "dependencies": [
+      "shop application deployed with bench.scenarios deploy",
+      "operator-built images",
+      "start recreates recommendation pod to trigger admission"
+    ]
+  },
+  "slow-leak": {
+    "path": "faults/slow-leak/manifests",
+    "dependencies": [
+      "shop application deployed with bench.scenarios deploy",
+      "operator-built images"
+    ],
+    "image": "session-indexer"
+  },
+  "shm-exhaustion": {
+    "path": "faults/shm-exhaustion/manifests",
+    "dependencies": [
+      "shop application deployed with bench.scenarios deploy",
+      "operator-built images"
+    ],
+    "image": "media-transcoder"
+  },
+  "netpol-isolation": {
+    "path": "faults/netpol-isolation/manifests",
+    "dependencies": [
+      "shop application deployed with bench.scenarios deploy",
+      "operator-built images",
+      "CNI enforcing Kubernetes NetworkPolicy; kind default does not enforce it"
+    ]
+  },
+  "pending-volume-claim": {
+    "path": "faults/pending-volume-claim/manifests",
+    "dependencies": [
+      "shop application deployed with bench.scenarios deploy",
+      "operator-built images",
+      "requested missing StorageClass must be absent"
+    ],
+    "image": "archive-writer"
+  },
+  "stale-db-credentials": {
+    "path": "faults/stale-db-credentials/manifests",
+    "dependencies": [
+      "shop application deployed with bench.scenarios deploy",
+      "operator-built images"
+    ],
+    "image": "credential-rotator"
+  },
+  "volume-affinity-conflict": {
+    "path": "faults/volume-affinity-conflict/manifests",
+    "dependencies": [
+      "shop application deployed with bench.scenarios deploy",
+      "operator-built images",
+      "no node labeled storage-tier=nvme-archive; dedicated cluster-scoped PV"
+    ],
+    "image": "index-store"
+  },
+  "pg-lock-hold": {
+    "path": "faults/pg-lock-hold/manifests",
+    "dependencies": [
+      "shop application deployed with bench.scenarios deploy",
+      "operator-built images"
+    ],
+    "image": "catalog-maintenance"
+  },
+  "multi-fault": {
+    "path": "faults/multi-fault/manifests",
+    "dependencies": [
+      "shop application deployed with bench.scenarios deploy",
+      "operator-built images"
+    ]
+  },
+  "admission-webhook-outage": {
+    "path": "faults/admission-webhook-outage/manifests",
+    "dependencies": [
+      "shop application deployed with bench.scenarios deploy",
+      "operator-built images",
+      "start recreates recommendation pod to trigger admission"
+    ]
+  },
+  "composite-noise-fault": {
+    "path": "faults/composite-noise-fault/manifests",
+    "dependencies": [
+      "shop application deployed with bench.scenarios deploy",
+      "operator-built images"
+    ]
+  },
+  "traffic-flood": {
+    "path": "faults/traffic-flood/manifests",
+    "dependencies": [
+      "shop application deployed with bench.scenarios deploy",
+      "operator-built images"
+    ]
+  }
+}

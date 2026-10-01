@@ -1,0 +1,21 @@
+{
+  "scenario": "pending-volume-claim",
+  "ground_truth": {
+    "cause": "In batch, archive-writer mounts PVC archive-writer, requesting StorageClass gp3-archive, which the scenario requires to be absent. The claim cannot provision/bind storage and the pod remains pending.",
+    "impact": "Only archive-writer is blocked. This is missing storage provisioning, not insufficient node CPU or memory.",
+    "mitigation": "Provide a valid gp3-archive StorageClass backed by the appropriate installed provisioner, or safely recreate the unbound, unused claim against a verified supported class and update the workload. Stop the unused workload as limited containment if appropriate. Do not scale nodes or delete a bound data volume without establishing data safety.",
+    "causal_change": {
+      "eligible": false,
+      "reason": "This scenario does not provide a controlled introducing commit and recorded product access to its history."
+    }
+  },
+  "implementation_sources": [
+    "scenarios/faults/pending-volume-claim/manifests/deployment.yaml",
+    "scenarios/faults/pending-volume-claim/manifests/kustomization.yaml",
+    "scenarios/faults/pending-volume-claim/manifests/pvc.yaml",
+    "scenarios/faults/pending-volume-claim/run.sh",
+    "bench/app_manifests.py",
+    "scenarios/shop/manifests.json",
+    "scenarios/shop/flags.json"
+  ]
+}

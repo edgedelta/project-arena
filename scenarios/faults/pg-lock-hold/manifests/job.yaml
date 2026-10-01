@@ -1,0 +1,31 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: catalog-maintenance
+  namespace: batch
+  labels: {app: catalog-maintenance}
+spec:
+  backoffLimit: 0
+  template:
+    metadata:
+      labels: {app: catalog-maintenance}
+    spec:
+      restartPolicy: Never
+      terminationGracePeriodSeconds: 0
+      automountServiceAccountToken: false
+      containers:
+        - name: main
+          image: fixture.local/catalog-maintenance:v1
+          env:
+            - {name: PGHOST, value: postgres.datastore.svc.cluster.local}
+            - {name: PGPORT, value: "5432"}
+            - {name: PGDATABASE, value: shop_db}
+            - {name: TARGET_TABLE, value: catalog.products}
+            - {name: HOLD_SECONDS, value: "86400"}
+            - name: PGUSER
+              valueFrom: {secretKeyRef: {name: db-maintenance, key: PGUSER}}
+            - name: PGPASSWORD
+              valueFrom: {secretKeyRef: {name: db-maintenance, key: PGPASSWORD}}
+          resources:
+            requests: {cpu: 25m, memory: 32Mi}
+            limits: {memory: 64Mi}

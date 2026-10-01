@@ -1,0 +1,19 @@
+{
+  "scenario": "payment-failure",
+  "ground_truth": {
+    "cause": "flagd-config sets paymentStrictTokenCheck defaultVariant to 100%. Payment routes charge requests through strict card-token validation and rejects the synthetic tokens with card token rejected by processor.",
+    "impact": "Payment charge requests fail and checkout reports downstream failure. This does not establish an external provider outage or broken cart, catalog, or Redis.",
+    "mitigation": "Restore paymentStrictTokenCheck to off in flagd-config and verify charge and checkout requests recover. Do not rotate real provider credentials based only on the synthetic rejection message.",
+    "causal_change": {
+      "eligible": false,
+      "reason": "This scenario does not provide a controlled introducing commit and recorded product access to its history."
+    }
+  },
+  "implementation_sources": [
+    "scenarios/faults/payment-failure/manifests/flags.yaml",
+    "scenarios/faults/payment-failure/manifests/kustomization.yaml",
+    "bench/app_manifests.py",
+    "scenarios/shop/manifests.json",
+    "scenarios/shop/flags.json"
+  ]
+}

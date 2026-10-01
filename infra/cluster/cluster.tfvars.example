@@ -1,0 +1,8 @@
+cluster_name = "web-platform"
+region = "YOUR_REGION"
+cluster_version = "YOUR_SUPPORTED_VERSION"
+admin_cidrs = ["YOUR_PUBLIC_IP/32"]
+node_count = 3
+node_min = 2
+node_max = 5
+ebs_target_gb = 350

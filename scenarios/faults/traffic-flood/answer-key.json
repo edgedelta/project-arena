@@ -1,0 +1,19 @@
+{
+  "scenario": "traffic-flood",
+  "ground_truth": {
+    "cause": "flagd-config changes browseJourneyConcurrency from 5 to 50. The original k6 load-generator polls the flag and restarts the browse journey at 50 concurrent sessions.",
+    "impact": "Increased shop request volume across frontend and the services called by browsing and checkout. This is a load spike, not an injected component failure; elevated traffic alone does not establish service failure.",
+    "mitigation": "Restore browseJourneyConcurrency to 5 or stop the identified load-generator as containment, and verify traffic returns to baseline. Do not infer an external attack or broken component solely from volume.",
+    "causal_change": {
+      "eligible": false,
+      "reason": "This scenario does not provide a controlled introducing commit and recorded product access to its history."
+    }
+  },
+  "implementation_sources": [
+    "scenarios/faults/traffic-flood/manifests/flags.yaml",
+    "scenarios/faults/traffic-flood/manifests/kustomization.yaml",
+    "bench/app_manifests.py",
+    "scenarios/shop/manifests.json",
+    "scenarios/shop/flags.json"
+  ]
+}

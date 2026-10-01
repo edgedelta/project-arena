@@ -1,0 +1,140 @@
+{
+  "busybox:latest": {
+    "image": "busybox:latest@sha256:fd7dc98638c8e305f4dc34e979f1c0fdfdcaeb0fbf8fcff77ae834b6da3d7e6e",
+    "platforms": [
+      "linux/amd64",
+      "unknown/unknown",
+      "linux/arm/v5",
+      "unknown/unknown",
+      "linux/arm/v6",
+      "linux/arm/v7",
+      "unknown/unknown",
+      "linux/arm64/v8",
+      "unknown/unknown",
+      "linux/386",
+      "unknown/unknown",
+      "linux/ppc64le",
+      "unknown/unknown",
+      "linux/riscv64",
+      "unknown/unknown",
+      "linux/s390x",
+      "unknown/unknown"
+    ]
+  },
+  "postgres:17": {
+    "image": "postgres:17@sha256:d74eeac9a635390a49bc21bd49fccd973de707e2a53a76ac49b552b8712ec46f",
+    "platforms": [
+      "linux/amd64",
+      "unknown/unknown",
+      "linux/arm/v5",
+      "unknown/unknown",
+      "linux/arm/v7",
+      "unknown/unknown",
+      "linux/arm64/v8",
+      "unknown/unknown",
+      "linux/386",
+      "unknown/unknown",
+      "linux/ppc64le",
+      "unknown/unknown",
+      "linux/riscv64",
+      "unknown/unknown",
+      "linux/s390x",
+      "unknown/unknown"
+    ]
+  },
+  "public.ecr.aws/v4z2v9g0/webshop/ad:2026.09.07.2": {
+    "image": "public.ecr.aws/v4z2v9g0/webshop/ad:2026.09.07.2@sha256:664838665d3b3c2b168c45c279011802034ca91f453bbde00291e2f58efbb297",
+    "platforms": [
+      "linux/amd64"
+    ]
+  },
+  "public.ecr.aws/v4z2v9g0/webshop/cart:2026.09.07.1": {
+    "image": "public.ecr.aws/v4z2v9g0/webshop/cart:2026.09.07.1@sha256:b9a26602ac079ee4c3db0b4cd5735bb89c1a56d786d5e3bded9ca5385b226018",
+    "platforms": [
+      "linux/amd64"
+    ]
+  },
+  "public.ecr.aws/v4z2v9g0/webshop/checkout:2026.09.07.1": {
+    "image": "public.ecr.aws/v4z2v9g0/webshop/checkout:2026.09.07.1@sha256:1a75cb704b00cd9ee37080462d9dc26e0e3ce6c596b9138205ecccd1cd79abb4",
+    "platforms": [
+      "linux/amd64"
+    ]
+  },
+  "public.ecr.aws/v4z2v9g0/webshop/currency:2026.09.07.1": {
+    "image": "public.ecr.aws/v4z2v9g0/webshop/currency:2026.09.07.1@sha256:80de46e23a4cf3950d827a0404ae4733d69921fced9779f1762778b63f727176",
+    "platforms": [
+      "linux/amd64"
+    ]
+  },
+  "public.ecr.aws/v4z2v9g0/webshop/flagd:v0.16.0": {
+    "image": "public.ecr.aws/v4z2v9g0/webshop/flagd:v0.16.0@sha256:5eb4b104f7c8f5485fe9f6f3144cc426a5be347af1d6ca5d0e97dbb38229b117",
+    "platforms": [
+      "linux/amd64",
+      "linux/arm64"
+    ]
+  },
+  "public.ecr.aws/v4z2v9g0/webshop/frontend:2026.09.07.1": {
+    "image": "public.ecr.aws/v4z2v9g0/webshop/frontend:2026.09.07.1@sha256:b15182849e1dae8a62c976c55d261ec15fa14e8238cd531bcc4dfdefe838f923",
+    "platforms": [
+      "linux/amd64"
+    ]
+  },
+  "public.ecr.aws/v4z2v9g0/webshop/kafka:2026.09.07": {
+    "image": "public.ecr.aws/v4z2v9g0/webshop/kafka:2026.09.07@sha256:49f92f972d0e9653a7ebc22bbace849ce6d39e0f76623524bb543d2f79391891",
+    "platforms": [
+      "linux/amd64",
+      "linux/arm64"
+    ]
+  },
+  "public.ecr.aws/v4z2v9g0/webshop/load-generator:2026.09.07.1": {
+    "image": "public.ecr.aws/v4z2v9g0/webshop/load-generator:2026.09.07.1@sha256:e09dfa0f0856b5754c49d2e84cb2932671af8bd6b56f388da93f0cc407990b95",
+    "platforms": [
+      "linux/amd64"
+    ]
+  },
+  "public.ecr.aws/v4z2v9g0/webshop/payment:2026.09.07.2": {
+    "image": "public.ecr.aws/v4z2v9g0/webshop/payment:2026.09.07.2@sha256:d651259517685c3c4468b2ef9e786075138bffd1f1b75d2d8af044ebde6dd852",
+    "platforms": [
+      "linux/amd64"
+    ]
+  },
+  "public.ecr.aws/v4z2v9g0/webshop/product-catalog:2026.09.07.1": {
+    "image": "public.ecr.aws/v4z2v9g0/webshop/product-catalog:2026.09.07.1@sha256:f2e7e5795ce572e9f37f3ff999b55f3ed6e313e852155e23cb2504c96c781da1",
+    "platforms": [
+      "linux/amd64"
+    ]
+  },
+  "public.ecr.aws/v4z2v9g0/webshop/quote:2026.09.07.1": {
+    "image": "public.ecr.aws/v4z2v9g0/webshop/quote:2026.09.07.1@sha256:681a0d48de19e577a523777e9a630c910ecaf51c7f248a78b85d66ff022d6a59",
+    "platforms": [
+      "linux/amd64"
+    ]
+  },
+  "public.ecr.aws/v4z2v9g0/webshop/recommendation:2026.09.07.2": {
+    "image": "public.ecr.aws/v4z2v9g0/webshop/recommendation:2026.09.07.2@sha256:cd7f0f10490f7bc831931c2bda5983c34902e51983bdb3abad124328343f2710",
+    "platforms": [
+      "linux/amd64"
+    ]
+  },
+  "public.ecr.aws/v4z2v9g0/webshop/shipping:2026.09.07.1": {
+    "image": "public.ecr.aws/v4z2v9g0/webshop/shipping:2026.09.07.1@sha256:014a7209b5644c3a441cbc16e120840556103ff200b5c52b8ea8d603ec4d8ddb",
+    "platforms": [
+      "linux/amd64"
+    ]
+  },
+  "redis:7": {
+    "image": "redis:7@sha256:c6eabf748fc7a61dbb5a705c78bcf3d6377b1127a97d0ce965c11c44ba46896f",
+    "platforms": [
+      "linux/amd64",
+      "unknown/unknown",
+      "linux/arm/v7",
+      "unknown/unknown",
+      "linux/arm64/v8",
+      "unknown/unknown",
+      "linux/386",
+      "unknown/unknown",
+      "linux/ppc64le",
+      "unknown/unknown"
+    ]
+  }
+}

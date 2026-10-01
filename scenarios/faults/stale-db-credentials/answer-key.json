@@ -1,0 +1,20 @@
+{
+  "scenario": "stale-db-credentials",
+  "ground_truth": {
+    "cause": "The batch/credential-rotator job changes shop_user password in PostgreSQL and terminates that role's sessions. Product-catalog keeps the old password in DB_CONNECTION_STRING and fails authentication on reconnect.",
+    "impact": "The direct failure is product-catalog to PostgreSQL authentication. Frontend and recommendation depend on catalog and can report propagated errors; PostgreSQL remains running.",
+    "mitigation": "Restore agreement between the shop_user database password and the product-catalog credential, stop the unintended rotator, and refresh affected connections. Verify authentication and catalog-dependent requests recover; do not expose credentials.",
+    "causal_change": {
+      "eligible": false,
+      "reason": "This scenario does not provide a controlled introducing commit and recorded product access to its history."
+    }
+  },
+  "implementation_sources": [
+    "scenarios/faults/stale-db-credentials/manifests/job.yaml",
+    "scenarios/faults/stale-db-credentials/manifests/kustomization.yaml",
+    "scenarios/faults/stale-db-credentials/run.sh",
+    "bench/app_manifests.py",
+    "scenarios/shop/manifests.json",
+    "scenarios/shop/flags.json"
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "scenario": "netpol-isolation",
+  "ground_truth": {
+    "cause": "NetworkPolicy restrict-cart-ingress in shop selects cart and denies ingress. Frontend and checkout cannot reach cart; its process and Redis connection need not fail.",
+    "impact": "Cart callers in frontend and checkout see deadline/unavailable errors while cart can remain Ready. This is a connectivity boundary, not proof of cart crash or Redis outage.",
+    "mitigation": "Correct or remove the specific cart ingress policy to allow the required callers and ports, then verify frontend/checkout cart calls recover. Avoid disabling network enforcement cluster-wide.",
+    "causal_change": {
+      "eligible": false,
+      "reason": "This scenario does not provide a controlled introducing commit and recorded product access to its history."
+    }
+  },
+  "implementation_sources": [
+    "scenarios/faults/netpol-isolation/manifests/kustomization.yaml",
+    "scenarios/faults/netpol-isolation/manifests/networkpolicy.yaml",
+    "bench/app_manifests.py",
+    "scenarios/shop/manifests.json",
+    "scenarios/shop/flags.json"
+  ]
+}

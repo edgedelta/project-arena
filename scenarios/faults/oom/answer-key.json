@@ -1,0 +1,20 @@
+{
+  "scenario": "oom",
+  "ground_truth": {
+    "cause": "In batch, thumbnailer executes tail /dev/zero after 15 seconds. Reading an endless input into the tail buffer causes unbounded allocation against a 64Mi container limit.",
+    "impact": "Thumbnailer is OOM-killed and restarts. The shop services do not depend on it; this does not establish node-wide memory exhaustion.",
+    "mitigation": "Replace the unbounded read with bounded processing and deploy the corrected image, or stop thumbnailer as containment. Raising its memory limit alone only delays failure; verify bounded memory and stable execution.",
+    "causal_change": {
+      "eligible": false,
+      "reason": "This scenario does not provide a controlled introducing commit and recorded product access to its history."
+    }
+  },
+  "implementation_sources": [
+    "scenarios/faults/oom/manifests/deployment.yaml",
+    "scenarios/faults/oom/manifests/kustomization.yaml",
+    "scenarios/faults/oom/run.sh",
+    "bench/app_manifests.py",
+    "scenarios/shop/manifests.json",
+    "scenarios/shop/flags.json"
+  ]
+}

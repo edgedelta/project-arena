@@ -1,0 +1,19 @@
+{
+  "scenario": "quota-trap",
+  "ground_truth": {
+    "cause": "ResourceQuota platform-limits requires requests.cpu in shop. Recommendation has no CPU request or limit; deleting its pod forces replacement admission, which fails for missing requests.cpu. Other original shop workloads also lack CPU requests and may be affected when recreated.",
+    "impact": "The exercised replacement failure is recommendation. Existing pods are not evicted; other workloads without CPU requests are exposed on subsequent creation. This is admission failure, not demonstrated node capacity exhaustion.",
+    "mitigation": "Set appropriate CPU requests within verified quota headroom on affected workloads, or correct/remove the erroneous quota as scoped containment. Verify replacement admission and request recovery. Node scaling alone does not satisfy missing requests.",
+    "causal_change": {
+      "eligible": false,
+      "reason": "This scenario does not provide a controlled introducing commit and recorded product access to its history."
+    }
+  },
+  "implementation_sources": [
+    "scenarios/faults/quota-trap/manifests/kustomization.yaml",
+    "scenarios/faults/quota-trap/manifests/resourcequota.yaml",
+    "bench/app_manifests.py",
+    "scenarios/shop/manifests.json",
+    "scenarios/shop/flags.json"
+  ]
+}

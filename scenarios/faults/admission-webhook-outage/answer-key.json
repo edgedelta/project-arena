@@ -1,0 +1,19 @@
+{
+  "scenario": "admission-webhook-outage",
+  "ground_truth": {
+    "cause": "ValidatingWebhookConfiguration pod-policy intercepts CREATE pods in shop with failurePolicy=Fail, but its platform-ops/pod-policy-webhook service is absent. Injection recreates recommendation, whose replacement is blocked by the unavailable webhook.",
+    "impact": "New pod admissions in shop are affected, including recommendation and its downstream frontend path. Existing pods and unrelated namespaces are not automatically affected. This is not webhook-relay in batch.",
+    "mitigation": "Restore the intended admission service and connectivity, or remove the specific broken test webhook as scoped containment. A temporary fail-open change must acknowledge its policy impact and rollback; do not disable all admission enforcement. Verify pod admission and recommendation/frontend recovery.",
+    "causal_change": {
+      "eligible": false,
+      "reason": "This scenario does not provide a controlled introducing commit and recorded product access to its history."
+    }
+  },
+  "implementation_sources": [
+    "scenarios/faults/admission-webhook-outage/manifests/kustomization.yaml",
+    "scenarios/faults/admission-webhook-outage/manifests/webhook.yaml",
+    "bench/app_manifests.py",
+    "scenarios/shop/manifests.json",
+    "scenarios/shop/flags.json"
+  ]
+}

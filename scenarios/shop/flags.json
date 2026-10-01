@@ -1,0 +1,166 @@
+{
+  "$schema": "https://flagd.dev/schema/v0/flags.json",
+  "flags": {
+    "cartSecondaryStoreShare": {
+      "defaultVariant": "off",
+      "description": "Share of cart operations routed to the secondary cart store",
+      "state": "ENABLED",
+      "variants": {
+        "10%": 0.1,
+        "100%": 1,
+        "25%": 0.25,
+        "50%": 0.5,
+        "75%": 0.75,
+        "90%": 0.9,
+        "off": 0
+      }
+    },
+    "cartDrainMode": {
+      "defaultVariant": "off",
+      "description": "Report cart as not ready so traffic drains off it",
+      "state": "ENABLED",
+      "variants": {
+        "off": false,
+        "on": true
+      }
+    },
+    "paymentStrictTokenCheck": {
+      "defaultVariant": "off",
+      "description": "Share of charge requests routed through strict card-token validation",
+      "state": "ENABLED",
+      "variants": {
+        "10%": 0.1,
+        "100%": 1,
+        "25%": 0.25,
+        "50%": 0.5,
+        "75%": 0.75,
+        "90%": 0.95,
+        "off": 0
+      }
+    },
+    "browseJourneyEnabled": {
+      "defaultVariant": "on",
+      "description": "Run the browse and checkout journeys. Turn off to pause them.",
+      "state": "ENABLED",
+      "variants": {
+        "off": 0,
+        "on": 1
+      }
+    },
+    "browseJourneyConcurrency": {
+      "defaultVariant": "5",
+      "description": "Concurrent sessions for the browse journey. Applied on the runner's next poll.",
+      "state": "ENABLED",
+      "variants": {
+        "10": 10,
+        "25": 25,
+        "5": 5,
+        "50": 50
+      }
+    },
+    "homepagePrefetchBurst": {
+      "defaultVariant": "off",
+      "description": "Extra homepage requests issued per browse session",
+      "state": "ENABLED",
+      "variants": {
+        "off": 0,
+        "20": 20,
+        "50": 50,
+        "100": 100
+      }
+    },
+    "adServeFallback": {
+      "defaultVariant": "off",
+      "description": "Serve fallback ads instead of targeted ones",
+      "state": "ENABLED",
+      "variants": {
+        "off": false,
+        "on": true
+      }
+    },
+    "adRankingDepth": {
+      "defaultVariant": "off",
+      "description": "Deep ranking pass for ad selection",
+      "state": "ENABLED",
+      "variants": {
+        "off": false,
+        "on": true
+      }
+    },
+    "adHeapCompaction": {
+      "defaultVariant": "off",
+      "description": "Force heap compaction between ad requests",
+      "state": "ENABLED",
+      "variants": {
+        "off": false,
+        "on": true
+      }
+    },
+    "catalogStrictLookup": {
+      "defaultVariant": "off",
+      "description": "Strict product lookup validation in the catalog",
+      "state": "ENABLED",
+      "variants": {
+        "off": false,
+        "on": true
+      }
+    },
+    "imageLazyLoadDelay": {
+      "defaultVariant": "off",
+      "description": "Delay (ms) before product images load",
+      "state": "ENABLED",
+      "variants": {
+        "off": 0,
+        "5sec": 5000,
+        "10sec": 10000
+      }
+    },
+    "orderQueueBatching": {
+      "defaultVariant": "off",
+      "description": "Batch order events onto the queue",
+      "state": "ENABLED",
+      "variants": {
+        "off": 0,
+        "on": 100
+      }
+    },
+    "paymentMaintenanceMode": {
+      "defaultVariant": "off",
+      "description": "Payment service maintenance mode",
+      "state": "ENABLED",
+      "variants": {
+        "off": false,
+        "on": true
+      }
+    },
+    "recommendationCacheBypass": {
+      "defaultVariant": "off",
+      "description": "Bypass the recommendation cache",
+      "state": "ENABLED",
+      "variants": {
+        "off": false,
+        "on": true
+      }
+    },
+    "intlShippingQuoteDelay": {
+      "defaultVariant": "off",
+      "description": "Extra seconds added to international shipping quotes",
+      "state": "ENABLED",
+      "variants": {
+        "off": 0,
+        "5sec": 5,
+        "10sec": 10
+      }
+    },
+    "emailTemplateCache": {
+      "defaultVariant": "off",
+      "description": "Email template cache multiplier",
+      "state": "ENABLED",
+      "variants": {
+        "off": 0,
+        "1x": 1,
+        "10x": 10
+      }
+    }
+  }
+}

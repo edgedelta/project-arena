@@ -1,0 +1,9 @@
+[project]
+name = "project-arena"
+version = "0.1.0"
+description = "Vendor-neutral Kubernetes incident benchmark starter"
+requires-python = ">=3.10"
+dependencies = []
+
+[project.scripts]
+incident-bench = "bench.__main__:main"

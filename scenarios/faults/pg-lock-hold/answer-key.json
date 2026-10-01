@@ -1,0 +1,20 @@
+{
+  "scenario": "pg-lock-hold",
+  "ground_truth": {
+    "cause": "The batch/catalog-maintenance job holds ACCESS EXCLUSIVE on datastore PostgreSQL shop_db.catalog.products during a 86400-second transaction. Product-catalog queries block behind this lock.",
+    "impact": "Product-catalog is the direct database consumer. Its callers, including frontend and recommendation, can time out. PostgreSQL still accepts connections; identify the actual blocked query chain rather than declaring the entire database down.",
+    "mitigation": "Identify and end the specific maintenance blocking transaction/session, and stop or fix its job so it cannot reacquire the lock. Verify lock release, catalog query recovery, and recovery of dependent requests.",
+    "causal_change": {
+      "eligible": false,
+      "reason": "This scenario does not provide a controlled introducing commit and recorded product access to its history."
+    }
+  },
+  "implementation_sources": [
+    "scenarios/faults/pg-lock-hold/manifests/job.yaml",
+    "scenarios/faults/pg-lock-hold/manifests/kustomization.yaml",
+    "scenarios/faults/pg-lock-hold/run.sh",
+    "bench/app_manifests.py",
+    "scenarios/shop/manifests.json",
+    "scenarios/shop/flags.json"
+  ]
+}

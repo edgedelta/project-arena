@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: config-loader-settings
+  namespace: batch
+  labels: {app: config-loader}
+data:
+  LOG_LEVEL: info
+  REGION: us-east-1

@@ -1,0 +1,2099 @@
+{
+  "apiVersion": "v1",
+  "kind": "List",
+  "items": [
+    {
+      "apiVersion": "apps/v1",
+      "kind": "Deployment",
+      "metadata": {
+        "name": "ad",
+        "labels": {
+          "opentelemetry.io/name": "ad",
+          "app.kubernetes.io/version": "3.0.0",
+          "app.kubernetes.io/component": "ad",
+          "app.kubernetes.io/name": "ad",
+          "app.kubernetes.io/part-of": "webshop"
+        },
+        "namespace": "shop"
+      },
+      "spec": {
+        "replicas": 1,
+        "revisionHistoryLimit": 10,
+        "selector": {
+          "matchLabels": {
+            "opentelemetry.io/name": "ad"
+          }
+        },
+        "template": {
+          "metadata": {
+            "labels": {
+              "opentelemetry.io/name": "ad",
+              "app.kubernetes.io/version": "3.0.0",
+              "app.kubernetes.io/component": "ad",
+              "app.kubernetes.io/name": "ad"
+            },
+            "annotations": {
+              "resource.opentelemetry.io/service.namespace": "webshop"
+            }
+          },
+          "spec": {
+            "containers": [
+              {
+                "name": "ad",
+                "image": "public.ecr.aws/v4z2v9g0/webshop/ad:2026.09.07.2@sha256:664838665d3b3c2b168c45c279011802034ca91f453bbde00291e2f58efbb297",
+                "imagePullPolicy": "IfNotPresent",
+                "ports": [
+                  {
+                    "containerPort": 8080,
+                    "name": "service"
+                  }
+                ],
+                "env": [
+                  {
+                    "name": "OTEL_SERVICE_NAME",
+                    "valueFrom": {
+                      "fieldRef": {
+                        "apiVersion": "v1",
+                        "fieldPath": "metadata.labels['app.kubernetes.io/component']"
+                      }
+                    }
+                  },
+                  {
+                    "name": "AD_PORT",
+                    "value": "8080"
+                  },
+                  {
+                    "name": "AD_PROMETHEUS_PORT",
+                    "value": "9464"
+                  },
+                  {
+                    "name": "OTEL_LOGS_EXPORTER",
+                    "value": "otlp"
+                  },
+                  {
+                    "name": "FLAGD_HOST",
+                    "value": "flagd"
+                  },
+                  {
+                    "name": "FLAGD_PORT",
+                    "value": "8013"
+                  },
+                  {
+                    "name": "OTEL_COLLECTOR_NAME",
+                    "value": "otel-collector.telemetry.svc.cluster.local"
+                  },
+                  {
+                    "name": "OTEL_EXPORTER_OTLP_ENDPOINT",
+                    "value": "http://$(OTEL_COLLECTOR_NAME):4317"
+                  },
+                  {
+                    "name": "OTEL_EXPORTER_OTLP_PROTOCOL",
+                    "value": "grpc"
+                  },
+                  {
+                    "name": "OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE",
+                    "value": "cumulative"
+                  },
+                  {
+                    "name": "OTEL_RESOURCE_ATTRIBUTES",
+                    "value": "service.version=3.0.0,service.criticality=medium"
+                  }
+                ],
+                "resources": {
+                  "limits": {
+                    "memory": "300Mi"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Service",
+      "metadata": {
+        "name": "ad",
+        "labels": {
+          "opentelemetry.io/name": "ad",
+          "app.kubernetes.io/component": "ad",
+          "app.kubernetes.io/name": "ad",
+          "app.kubernetes.io/part-of": "webshop"
+        },
+        "namespace": "shop"
+      },
+      "spec": {
+        "type": "ClusterIP",
+        "ports": [
+          {
+            "port": 8080,
+            "name": "tcp-service",
+            "targetPort": 8080
+          }
+        ],
+        "selector": {
+          "opentelemetry.io/name": "ad"
+        }
+      }
+    },
+    {
+      "apiVersion": "apps/v1",
+      "kind": "Deployment",
+      "metadata": {
+        "name": "cart",
+        "labels": {
+          "opentelemetry.io/name": "cart",
+          "app.kubernetes.io/version": "3.0.0",
+          "app.kubernetes.io/component": "cart",
+          "app.kubernetes.io/name": "cart",
+          "app.kubernetes.io/part-of": "webshop"
+        },
+        "namespace": "shop"
+      },
+      "spec": {
+        "replicas": 1,
+        "revisionHistoryLimit": 10,
+        "selector": {
+          "matchLabels": {
+            "opentelemetry.io/name": "cart"
+          }
+        },
+        "template": {
+          "metadata": {
+            "labels": {
+              "opentelemetry.io/name": "cart",
+              "app.kubernetes.io/version": "3.0.0",
+              "app.kubernetes.io/component": "cart",
+              "app.kubernetes.io/name": "cart"
+            },
+            "annotations": {
+              "resource.opentelemetry.io/service.namespace": "webshop"
+            }
+          },
+          "spec": {
+            "containers": [
+              {
+                "name": "cart",
+                "image": "public.ecr.aws/v4z2v9g0/webshop/cart:2026.09.07.1@sha256:b9a26602ac079ee4c3db0b4cd5735bb89c1a56d786d5e3bded9ca5385b226018",
+                "imagePullPolicy": "IfNotPresent",
+                "ports": [
+                  {
+                    "containerPort": 8080,
+                    "name": "service"
+                  }
+                ],
+                "env": [
+                  {
+                    "name": "OTEL_SERVICE_NAME",
+                    "valueFrom": {
+                      "fieldRef": {
+                        "apiVersion": "v1",
+                        "fieldPath": "metadata.labels['app.kubernetes.io/component']"
+                      }
+                    }
+                  },
+                  {
+                    "name": "CART_PORT",
+                    "value": "8080"
+                  },
+                  {
+                    "name": "ASPNETCORE_URLS",
+                    "value": "http://*:$(CART_PORT)"
+                  },
+                  {
+                    "name": "VALKEY_ADDR",
+                    "value": "redis.datastore.svc.cluster.local:6379"
+                  },
+                  {
+                    "name": "FLAGD_HOST",
+                    "value": "flagd"
+                  },
+                  {
+                    "name": "FLAGD_PORT",
+                    "value": "8013"
+                  },
+                  {
+                    "name": "OTEL_COLLECTOR_NAME",
+                    "value": "otel-collector.telemetry.svc.cluster.local"
+                  },
+                  {
+                    "name": "OTEL_EXPORTER_OTLP_ENDPOINT",
+                    "value": "http://$(OTEL_COLLECTOR_NAME):4317"
+                  },
+                  {
+                    "name": "OTEL_EXPORTER_OTLP_PROTOCOL",
+                    "value": "grpc"
+                  },
+                  {
+                    "name": "OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE",
+                    "value": "cumulative"
+                  },
+                  {
+                    "name": "OTEL_RESOURCE_ATTRIBUTES",
+                    "value": "service.version=3.0.0,service.criticality=high"
+                  }
+                ],
+                "resources": {
+                  "limits": {
+                    "memory": "160Mi"
+                  }
+                }
+              }
+            ],
+            "initContainers": [
+              {
+                "name": "wait-for-redis",
+                "image": "busybox:latest@sha256:fd7dc98638c8e305f4dc34e979f1c0fdfdcaeb0fbf8fcff77ae834b6da3d7e6e",
+                "command": [
+                  "sh",
+                  "-c",
+                  "until nc -z -v -w30 redis.datastore.svc.cluster.local 6379; do echo waiting for redis.datastore; sleep 2; done;"
+                ]
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Service",
+      "metadata": {
+        "name": "cart",
+        "labels": {
+          "opentelemetry.io/name": "cart",
+          "app.kubernetes.io/component": "cart",
+          "app.kubernetes.io/name": "cart",
+          "app.kubernetes.io/part-of": "webshop"
+        },
+        "namespace": "shop"
+      },
+      "spec": {
+        "type": "ClusterIP",
+        "ports": [
+          {
+            "port": 8080,
+            "name": "tcp-service",
+            "targetPort": 8080
+          }
+        ],
+        "selector": {
+          "opentelemetry.io/name": "cart"
+        }
+      }
+    },
+    {
+      "apiVersion": "apps/v1",
+      "kind": "Deployment",
+      "metadata": {
+        "name": "checkout",
+        "labels": {
+          "opentelemetry.io/name": "checkout",
+          "app.kubernetes.io/version": "3.0.0",
+          "app.kubernetes.io/component": "checkout",
+          "app.kubernetes.io/name": "checkout",
+          "app.kubernetes.io/part-of": "webshop"
+        },
+        "namespace": "shop"
+      },
+      "spec": {
+        "replicas": 1,
+        "revisionHistoryLimit": 10,
+        "selector": {
+          "matchLabels": {
+            "opentelemetry.io/name": "checkout"
+          }
+        },
+        "template": {
+          "metadata": {
+            "labels": {
+              "opentelemetry.io/name": "checkout",
+              "app.kubernetes.io/version": "3.0.0",
+              "app.kubernetes.io/component": "checkout",
+              "app.kubernetes.io/name": "checkout"
+            },
+            "annotations": {
+              "resource.opentelemetry.io/service.namespace": "webshop"
+            }
+          },
+          "spec": {
+            "containers": [
+              {
+                "name": "checkout",
+                "image": "public.ecr.aws/v4z2v9g0/webshop/checkout:2026.09.07.1@sha256:1a75cb704b00cd9ee37080462d9dc26e0e3ce6c596b9138205ecccd1cd79abb4",
+                "imagePullPolicy": "IfNotPresent",
+                "ports": [
+                  {
+                    "containerPort": 8080,
+                    "name": "service"
+                  }
+                ],
+                "env": [
+                  {
+                    "name": "OTEL_SERVICE_NAME",
+                    "valueFrom": {
+                      "fieldRef": {
+                        "apiVersion": "v1",
+                        "fieldPath": "metadata.labels['app.kubernetes.io/component']"
+                      }
+                    }
+                  },
+                  {
+                    "name": "CHECKOUT_PORT",
+                    "value": "8080"
+                  },
+                  {
+                    "name": "CART_ADDR",
+                    "value": "cart:8080"
+                  },
+                  {
+                    "name": "CURRENCY_ADDR",
+                    "value": "currency:8080"
+                  },
+                  {
+                    "name": "EMAIL_ADDR",
+                    "value": "http://email:8080"
+                  },
+                  {
+                    "name": "PAYMENT_ADDR",
+                    "value": "payment:8080"
+                  },
+                  {
+                    "name": "PRODUCT_CATALOG_ADDR",
+                    "value": "product-catalog:8080"
+                  },
+                  {
+                    "name": "SHIPPING_ADDR",
+                    "value": "http://shipping:8080"
+                  },
+                  {
+                    "name": "KAFKA_ADDR",
+                    "value": "kafka:9092"
+                  },
+                  {
+                    "name": "KAFKA_TOPIC",
+                    "value": "orders"
+                  },
+                  {
+                    "name": "FLAGD_HOST",
+                    "value": "flagd"
+                  },
+                  {
+                    "name": "FLAGD_PORT",
+                    "value": "8013"
+                  },
+                  {
+                    "name": "OTEL_COLLECTOR_NAME",
+                    "value": "otel-collector.telemetry.svc.cluster.local"
+                  },
+                  {
+                    "name": "OTEL_EXPORTER_OTLP_ENDPOINT",
+                    "value": "http://$(OTEL_COLLECTOR_NAME):4317"
+                  },
+                  {
+                    "name": "OTEL_EXPORTER_OTLP_PROTOCOL",
+                    "value": "grpc"
+                  },
+                  {
+                    "name": "OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE",
+                    "value": "cumulative"
+                  },
+                  {
+                    "name": "GOMEMLIMIT",
+                    "value": "16MiB"
+                  },
+                  {
+                    "name": "OTEL_RESOURCE_ATTRIBUTES",
+                    "value": "service.version=3.0.0,service.criticality=critical"
+                  }
+                ],
+                "resources": {
+                  "limits": {
+                    "memory": "20Mi"
+                  }
+                },
+                "securityContext": {
+                  "readOnlyRootFilesystem": true
+                },
+                "volumeMounts": [
+                  {
+                    "name": "tmp",
+                    "mountPath": "/tmp"
+                  }
+                ]
+              }
+            ],
+            "initContainers": [
+              {
+                "name": "wait-for-kafka",
+                "image": "busybox:latest@sha256:fd7dc98638c8e305f4dc34e979f1c0fdfdcaeb0fbf8fcff77ae834b6da3d7e6e",
+                "command": [
+                  "sh",
+                  "-c",
+                  "until nc -z -v -w30 kafka 9092; do echo waiting for kafka; sleep 2; done;"
+                ]
+              }
+            ],
+            "volumes": [
+              {
+                "name": "tmp",
+                "emptyDir": {}
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "apiVersion": "apps/v1",
+      "kind": "Deployment",
+      "metadata": {
+        "name": "kafka",
+        "labels": {
+          "opentelemetry.io/name": "kafka",
+          "app.kubernetes.io/version": "3.0.0",
+          "app.kubernetes.io/component": "kafka",
+          "app.kubernetes.io/name": "kafka",
+          "app.kubernetes.io/part-of": "webshop"
+        },
+        "namespace": "shop"
+      },
+      "spec": {
+        "replicas": 1,
+        "revisionHistoryLimit": 10,
+        "selector": {
+          "matchLabels": {
+            "opentelemetry.io/name": "kafka"
+          }
+        },
+        "template": {
+          "metadata": {
+            "labels": {
+              "opentelemetry.io/name": "kafka",
+              "app.kubernetes.io/version": "3.0.0",
+              "app.kubernetes.io/component": "kafka",
+              "app.kubernetes.io/name": "kafka"
+            },
+            "annotations": {
+              "resource.opentelemetry.io/service.namespace": "webshop"
+            }
+          },
+          "spec": {
+            "containers": [
+              {
+                "name": "kafka",
+                "image": "public.ecr.aws/v4z2v9g0/webshop/kafka:2026.09.07@sha256:49f92f972d0e9653a7ebc22bbace849ce6d39e0f76623524bb543d2f79391891",
+                "imagePullPolicy": "IfNotPresent",
+                "ports": [
+                  {
+                    "containerPort": 9092,
+                    "name": "plaintext"
+                  },
+                  {
+                    "containerPort": 9093,
+                    "name": "controller"
+                  }
+                ],
+                "env": [
+                  {
+                    "name": "OTEL_SERVICE_NAME",
+                    "valueFrom": {
+                      "fieldRef": {
+                        "apiVersion": "v1",
+                        "fieldPath": "metadata.labels['app.kubernetes.io/component']"
+                      }
+                    }
+                  },
+                  {
+                    "name": "KAFKA_ADVERTISED_LISTENERS",
+                    "value": "PLAINTEXT://kafka:9092"
+                  },
+                  {
+                    "name": "KAFKA_HEAP_OPTS",
+                    "value": "-Xmx400M -Xms400M"
+                  },
+                  {
+                    "name": "KAFKA_LISTENERS",
+                    "value": "PLAINTEXT://:9092,CONTROLLER://:9093"
+                  },
+                  {
+                    "name": "KAFKA_CONTROLLER_LISTENER_NAMES",
+                    "value": "CONTROLLER"
+                  },
+                  {
+                    "name": "KAFKA_CONTROLLER_QUORUM_VOTERS",
+                    "value": "1@kafka:9093"
+                  },
+                  {
+                    "name": "OTEL_COLLECTOR_NAME",
+                    "value": "otel-collector.telemetry.svc.cluster.local"
+                  },
+                  {
+                    "name": "OTEL_EXPORTER_OTLP_ENDPOINT",
+                    "value": "http://$(OTEL_COLLECTOR_NAME):4317"
+                  },
+                  {
+                    "name": "OTEL_EXPORTER_OTLP_PROTOCOL",
+                    "value": "grpc"
+                  },
+                  {
+                    "name": "OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE",
+                    "value": "cumulative"
+                  },
+                  {
+                    "name": "OTEL_RESOURCE_ATTRIBUTES",
+                    "value": "service.version=3.0.0,service.criticality=low"
+                  }
+                ],
+                "resources": {
+                  "limits": {
+                    "memory": "700Mi"
+                  }
+                },
+                "securityContext": {
+                  "runAsGroup": 1000,
+                  "runAsNonRoot": true,
+                  "runAsUser": 1000
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Service",
+      "metadata": {
+        "name": "kafka",
+        "labels": {
+          "opentelemetry.io/name": "kafka",
+          "app.kubernetes.io/component": "kafka",
+          "app.kubernetes.io/name": "kafka",
+          "app.kubernetes.io/part-of": "webshop"
+        },
+        "namespace": "shop"
+      },
+      "spec": {
+        "type": "ClusterIP",
+        "ports": [
+          {
+            "port": 9092,
+            "name": "plaintext",
+            "targetPort": 9092
+          },
+          {
+            "port": 9093,
+            "name": "controller",
+            "targetPort": 9093
+          }
+        ],
+        "selector": {
+          "opentelemetry.io/name": "kafka"
+        }
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Service",
+      "metadata": {
+        "name": "checkout",
+        "labels": {
+          "opentelemetry.io/name": "checkout",
+          "app.kubernetes.io/component": "checkout",
+          "app.kubernetes.io/name": "checkout",
+          "app.kubernetes.io/part-of": "webshop"
+        },
+        "namespace": "shop"
+      },
+      "spec": {
+        "type": "ClusterIP",
+        "ports": [
+          {
+            "port": 8080,
+            "name": "tcp-service",
+            "targetPort": 8080
+          }
+        ],
+        "selector": {
+          "opentelemetry.io/name": "checkout"
+        }
+      }
+    },
+    {
+      "apiVersion": "apps/v1",
+      "kind": "Deployment",
+      "metadata": {
+        "name": "currency",
+        "labels": {
+          "opentelemetry.io/name": "currency",
+          "app.kubernetes.io/version": "3.0.0",
+          "app.kubernetes.io/component": "currency",
+          "app.kubernetes.io/name": "currency",
+          "app.kubernetes.io/part-of": "webshop"
+        },
+        "namespace": "shop"
+      },
+      "spec": {
+        "replicas": 1,
+        "revisionHistoryLimit": 10,
+        "selector": {
+          "matchLabels": {
+            "opentelemetry.io/name": "currency"
+          }
+        },
+        "template": {
+          "metadata": {
+            "labels": {
+              "opentelemetry.io/name": "currency",
+              "app.kubernetes.io/version": "3.0.0",
+              "app.kubernetes.io/component": "currency",
+              "app.kubernetes.io/name": "currency"
+            },
+            "annotations": {
+              "resource.opentelemetry.io/service.namespace": "webshop"
+            }
+          },
+          "spec": {
+            "containers": [
+              {
+                "name": "currency",
+                "image": "public.ecr.aws/v4z2v9g0/webshop/currency:2026.09.07.1@sha256:80de46e23a4cf3950d827a0404ae4733d69921fced9779f1762778b63f727176",
+                "imagePullPolicy": "IfNotPresent",
+                "ports": [
+                  {
+                    "containerPort": 8080,
+                    "name": "service"
+                  }
+                ],
+                "env": [
+                  {
+                    "name": "OTEL_SERVICE_NAME",
+                    "valueFrom": {
+                      "fieldRef": {
+                        "apiVersion": "v1",
+                        "fieldPath": "metadata.labels['app.kubernetes.io/component']"
+                      }
+                    }
+                  },
+                  {
+                    "name": "CURRENCY_PORT",
+                    "value": "8080"
+                  },
+                  {
+                    "name": "VERSION",
+                    "value": "3.0.0"
+                  },
+                  {
+                    "name": "IPV6_ENABLED",
+                    "value": "false"
+                  },
+                  {
+                    "name": "OTEL_COLLECTOR_NAME",
+                    "value": "otel-collector.telemetry.svc.cluster.local"
+                  },
+                  {
+                    "name": "OTEL_EXPORTER_OTLP_ENDPOINT",
+                    "value": "http://$(OTEL_COLLECTOR_NAME):4317"
+                  },
+                  {
+                    "name": "OTEL_EXPORTER_OTLP_PROTOCOL",
+                    "value": "grpc"
+                  },
+                  {
+                    "name": "OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE",
+                    "value": "cumulative"
+                  },
+                  {
+                    "name": "OTEL_RESOURCE_ATTRIBUTES",
+                    "value": "service.version=3.0.0,service.criticality=high"
+                  }
+                ],
+                "resources": {
+                  "limits": {
+                    "memory": "20Mi"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Service",
+      "metadata": {
+        "name": "currency",
+        "labels": {
+          "opentelemetry.io/name": "currency",
+          "app.kubernetes.io/component": "currency",
+          "app.kubernetes.io/name": "currency",
+          "app.kubernetes.io/part-of": "webshop"
+        },
+        "namespace": "shop"
+      },
+      "spec": {
+        "type": "ClusterIP",
+        "ports": [
+          {
+            "port": 8080,
+            "name": "tcp-service",
+            "targetPort": 8080
+          }
+        ],
+        "selector": {
+          "opentelemetry.io/name": "currency"
+        }
+      }
+    },
+    {
+      "apiVersion": "apps/v1",
+      "kind": "Deployment",
+      "metadata": {
+        "name": "flagd",
+        "labels": {
+          "opentelemetry.io/name": "flagd",
+          "app.kubernetes.io/component": "flagd",
+          "app.kubernetes.io/name": "flagd"
+        },
+        "namespace": "shop"
+      },
+      "spec": {
+        "replicas": 1,
+        "selector": {
+          "matchLabels": {
+            "opentelemetry.io/name": "flagd"
+          }
+        },
+        "template": {
+          "metadata": {
+            "labels": {
+              "opentelemetry.io/name": "flagd",
+              "app.kubernetes.io/component": "flagd",
+              "app.kubernetes.io/name": "flagd"
+            }
+          },
+          "spec": {
+            "containers": [
+              {
+                "name": "flagd",
+                "image": "public.ecr.aws/v4z2v9g0/webshop/flagd:v0.16.0@sha256:5eb4b104f7c8f5485fe9f6f3144cc426a5be347af1d6ca5d0e97dbb38229b117",
+                "args": [
+                  "start",
+                  "--uri",
+                  "file:/etc/flagd/flags.json",
+                  "--port",
+                  "8013",
+                  "--ofrep-port",
+                  "8016"
+                ],
+                "ports": [
+                  {
+                    "containerPort": 8013,
+                    "name": "grpc"
+                  },
+                  {
+                    "containerPort": 8016,
+                    "name": "ofrep"
+                  }
+                ],
+                "volumeMounts": [
+                  {
+                    "name": "flagd-config",
+                    "mountPath": "/etc/flagd",
+                    "readOnly": true
+                  }
+                ],
+                "resources": {
+                  "requests": {
+                    "cpu": "25m",
+                    "memory": "32Mi"
+                  },
+                  "limits": {
+                    "memory": "128Mi"
+                  }
+                }
+              }
+            ],
+            "volumes": [
+              {
+                "name": "flagd-config",
+                "configMap": {
+                  "name": "flagd-config"
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Service",
+      "metadata": {
+        "name": "flagd",
+        "labels": {
+          "app.kubernetes.io/component": "flagd",
+          "app.kubernetes.io/name": "flagd"
+        },
+        "namespace": "shop"
+      },
+      "spec": {
+        "selector": {
+          "opentelemetry.io/name": "flagd"
+        },
+        "ports": [
+          {
+            "name": "grpc",
+            "port": 8013,
+            "targetPort": 8013
+          },
+          {
+            "name": "ofrep",
+            "port": 8016,
+            "targetPort": 8016
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "apps/v1",
+      "kind": "Deployment",
+      "metadata": {
+        "name": "frontend",
+        "labels": {
+          "opentelemetry.io/name": "frontend",
+          "app.kubernetes.io/version": "3.0.0",
+          "app.kubernetes.io/component": "frontend",
+          "app.kubernetes.io/name": "frontend",
+          "app.kubernetes.io/part-of": "webshop"
+        },
+        "namespace": "shop"
+      },
+      "spec": {
+        "replicas": 1,
+        "revisionHistoryLimit": 10,
+        "selector": {
+          "matchLabels": {
+            "opentelemetry.io/name": "frontend"
+          }
+        },
+        "template": {
+          "metadata": {
+            "labels": {
+              "opentelemetry.io/name": "frontend",
+              "app.kubernetes.io/version": "3.0.0",
+              "app.kubernetes.io/component": "frontend",
+              "app.kubernetes.io/name": "frontend"
+            },
+            "annotations": {
+              "resource.opentelemetry.io/service.namespace": "webshop"
+            }
+          },
+          "spec": {
+            "containers": [
+              {
+                "name": "frontend",
+                "image": "public.ecr.aws/v4z2v9g0/webshop/frontend:2026.09.07.1@sha256:b15182849e1dae8a62c976c55d261ec15fa14e8238cd531bcc4dfdefe838f923",
+                "imagePullPolicy": "IfNotPresent",
+                "ports": [
+                  {
+                    "containerPort": 8080,
+                    "name": "service"
+                  }
+                ],
+                "env": [
+                  {
+                    "name": "OTEL_SERVICE_NAME",
+                    "valueFrom": {
+                      "fieldRef": {
+                        "apiVersion": "v1",
+                        "fieldPath": "metadata.labels['app.kubernetes.io/component']"
+                      }
+                    }
+                  },
+                  {
+                    "name": "FRONTEND_PORT",
+                    "value": "8080"
+                  },
+                  {
+                    "name": "PORT",
+                    "value": "$(FRONTEND_PORT)"
+                  },
+                  {
+                    "name": "FRONTEND_ADDR",
+                    "value": "frontend:8080"
+                  },
+                  {
+                    "name": "AD_ADDR",
+                    "value": "ad:8080"
+                  },
+                  {
+                    "name": "CART_ADDR",
+                    "value": "cart:8080"
+                  },
+                  {
+                    "name": "CHECKOUT_ADDR",
+                    "value": "checkout:8080"
+                  },
+                  {
+                    "name": "CURRENCY_ADDR",
+                    "value": "currency:8080"
+                  },
+                  {
+                    "name": "PRODUCT_CATALOG_ADDR",
+                    "value": "product-catalog:8080"
+                  },
+                  {
+                    "name": "RECOMMENDATION_ADDR",
+                    "value": "recommendation:8080"
+                  },
+                  {
+                    "name": "SHIPPING_ADDR",
+                    "value": "http://shipping:8080"
+                  },
+                  {
+                    "name": "FLAGD_HOST",
+                    "value": "flagd"
+                  },
+                  {
+                    "name": "FLAGD_PORT",
+                    "value": "8013"
+                  },
+                  {
+                    "name": "ENV_PLATFORM",
+                    "value": "kubernetes"
+                  },
+                  {
+                    "name": "OTEL_COLLECTOR_NAME",
+                    "value": "otel-collector.telemetry.svc.cluster.local"
+                  },
+                  {
+                    "name": "OTEL_COLLECTOR_HOST",
+                    "value": "$(OTEL_COLLECTOR_NAME)"
+                  },
+                  {
+                    "name": "OTEL_EXPORTER_OTLP_ENDPOINT",
+                    "value": "http://$(OTEL_COLLECTOR_NAME):4317"
+                  },
+                  {
+                    "name": "OTEL_EXPORTER_OTLP_PROTOCOL",
+                    "value": "grpc"
+                  },
+                  {
+                    "name": "OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE",
+                    "value": "cumulative"
+                  },
+                  {
+                    "name": "WEB_OTEL_SERVICE_NAME",
+                    "value": "frontend-web"
+                  },
+                  {
+                    "name": "PUBLIC_OTEL_EXPORTER_OTLP_TRACES_ENDPOINT",
+                    "value": "http://localhost:8080/otlp-http/v1/traces"
+                  },
+                  {
+                    "name": "OTEL_RESOURCE_ATTRIBUTES",
+                    "value": "service.version=3.0.0,service.criticality=critical"
+                  }
+                ],
+                "resources": {
+                  "limits": {
+                    "memory": "250Mi"
+                  }
+                },
+                "securityContext": {
+                  "runAsGroup": 1001,
+                  "runAsNonRoot": true,
+                  "runAsUser": 1001
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Service",
+      "metadata": {
+        "name": "frontend",
+        "labels": {
+          "opentelemetry.io/name": "frontend",
+          "app.kubernetes.io/component": "frontend",
+          "app.kubernetes.io/name": "frontend",
+          "app.kubernetes.io/part-of": "webshop"
+        },
+        "namespace": "shop"
+      },
+      "spec": {
+        "type": "ClusterIP",
+        "ports": [
+          {
+            "port": 8080,
+            "name": "tcp-service",
+            "targetPort": 8080
+          }
+        ],
+        "selector": {
+          "opentelemetry.io/name": "frontend"
+        }
+      }
+    },
+    {
+      "apiVersion": "apps/v1",
+      "kind": "Deployment",
+      "metadata": {
+        "name": "load-generator",
+        "labels": {
+          "opentelemetry.io/name": "load-generator",
+          "app.kubernetes.io/version": "3.0.0",
+          "app.kubernetes.io/component": "load-generator",
+          "app.kubernetes.io/name": "load-generator",
+          "app.kubernetes.io/part-of": "webshop"
+        },
+        "namespace": "shop"
+      },
+      "spec": {
+        "replicas": 1,
+        "revisionHistoryLimit": 10,
+        "selector": {
+          "matchLabels": {
+            "opentelemetry.io/name": "load-generator"
+          }
+        },
+        "template": {
+          "metadata": {
+            "labels": {
+              "opentelemetry.io/name": "load-generator",
+              "app.kubernetes.io/version": "3.0.0",
+              "app.kubernetes.io/component": "load-generator",
+              "app.kubernetes.io/name": "load-generator"
+            },
+            "annotations": {
+              "resource.opentelemetry.io/service.namespace": "webshop"
+            }
+          },
+          "spec": {
+            "containers": [
+              {
+                "name": "load-generator",
+                "image": "public.ecr.aws/v4z2v9g0/webshop/load-generator:2026.09.07.1@sha256:e09dfa0f0856b5754c49d2e84cb2932671af8bd6b56f388da93f0cc407990b95",
+                "imagePullPolicy": "IfNotPresent",
+                "env": [
+                  {
+                    "name": "OTEL_SERVICE_NAME",
+                    "valueFrom": {
+                      "fieldRef": {
+                        "apiVersion": "v1",
+                        "fieldPath": "metadata.labels['app.kubernetes.io/component']"
+                      }
+                    }
+                  },
+                  {
+                    "name": "LOAD_GENERATOR_VUS",
+                    "value": "5"
+                  },
+                  {
+                    "name": "K6_TARGET_URL",
+                    "value": "http://frontend:8080"
+                  },
+                  {
+                    "name": "K6_BROWSER_ENABLED",
+                    "value": "false"
+                  },
+                  {
+                    "name": "FLAGD_HOST",
+                    "value": "flagd"
+                  },
+                  {
+                    "name": "FLAGD_OFREP_PORT",
+                    "value": "8016"
+                  },
+                  {
+                    "name": "OTEL_COLLECTOR_NAME",
+                    "value": "otel-collector.telemetry.svc.cluster.local"
+                  },
+                  {
+                    "name": "OTEL_EXPORTER_OTLP_ENDPOINT",
+                    "value": "http://$(OTEL_COLLECTOR_NAME):4318"
+                  },
+                  {
+                    "name": "OTEL_EXPORTER_OTLP_PROTOCOL",
+                    "value": "http/protobuf"
+                  },
+                  {
+                    "name": "K6_OTEL_GRPC_EXPORTER_ENDPOINT",
+                    "value": "$(OTEL_COLLECTOR_NAME):4317"
+                  },
+                  {
+                    "name": "K6_OTEL_GRPC_EXPORTER_INSECURE",
+                    "value": "true"
+                  },
+                  {
+                    "name": "OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE",
+                    "value": "cumulative"
+                  },
+                  {
+                    "name": "OTEL_RESOURCE_ATTRIBUTES",
+                    "value": "service.version=3.0.0,service.criticality=low"
+                  }
+                ],
+                "resources": {
+                  "limits": {
+                    "memory": "512Mi"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "apiVersion": "apps/v1",
+      "kind": "Deployment",
+      "metadata": {
+        "name": "payment",
+        "labels": {
+          "opentelemetry.io/name": "payment",
+          "app.kubernetes.io/version": "3.0.0",
+          "app.kubernetes.io/component": "payment",
+          "app.kubernetes.io/name": "payment",
+          "app.kubernetes.io/part-of": "webshop"
+        },
+        "namespace": "shop"
+      },
+      "spec": {
+        "replicas": 1,
+        "revisionHistoryLimit": 10,
+        "selector": {
+          "matchLabels": {
+            "opentelemetry.io/name": "payment"
+          }
+        },
+        "template": {
+          "metadata": {
+            "labels": {
+              "opentelemetry.io/name": "payment",
+              "app.kubernetes.io/version": "3.0.0",
+              "app.kubernetes.io/component": "payment",
+              "app.kubernetes.io/name": "payment"
+            },
+            "annotations": {
+              "resource.opentelemetry.io/service.namespace": "webshop"
+            }
+          },
+          "spec": {
+            "containers": [
+              {
+                "name": "payment",
+                "image": "public.ecr.aws/v4z2v9g0/webshop/payment:2026.09.07.2@sha256:d651259517685c3c4468b2ef9e786075138bffd1f1b75d2d8af044ebde6dd852",
+                "imagePullPolicy": "IfNotPresent",
+                "ports": [
+                  {
+                    "containerPort": 8080,
+                    "name": "service"
+                  }
+                ],
+                "env": [
+                  {
+                    "name": "OTEL_SERVICE_NAME",
+                    "valueFrom": {
+                      "fieldRef": {
+                        "apiVersion": "v1",
+                        "fieldPath": "metadata.labels['app.kubernetes.io/component']"
+                      }
+                    }
+                  },
+                  {
+                    "name": "PAYMENT_PORT",
+                    "value": "8080"
+                  },
+                  {
+                    "name": "FLAGD_HOST",
+                    "value": "flagd"
+                  },
+                  {
+                    "name": "FLAGD_PORT",
+                    "value": "8013"
+                  },
+                  {
+                    "name": "OTEL_COLLECTOR_NAME",
+                    "value": "otel-collector.telemetry.svc.cluster.local"
+                  },
+                  {
+                    "name": "OTEL_EXPORTER_OTLP_ENDPOINT",
+                    "value": "http://$(OTEL_COLLECTOR_NAME):4317"
+                  },
+                  {
+                    "name": "OTEL_EXPORTER_OTLP_PROTOCOL",
+                    "value": "grpc"
+                  },
+                  {
+                    "name": "OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE",
+                    "value": "cumulative"
+                  },
+                  {
+                    "name": "IPV6_ENABLED",
+                    "value": "false"
+                  },
+                  {
+                    "name": "NODE_OPTIONS",
+                    "value": "--require @opentelemetry/auto-instrumentations-node/register"
+                  },
+                  {
+                    "name": "OTEL_RESOURCE_ATTRIBUTES",
+                    "value": "service.version=3.0.0,service.criticality=critical"
+                  }
+                ],
+                "resources": {
+                  "limits": {
+                    "memory": "140Mi"
+                  }
+                },
+                "securityContext": {
+                  "runAsGroup": 1000,
+                  "runAsNonRoot": true,
+                  "runAsUser": 1000
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Service",
+      "metadata": {
+        "name": "payment",
+        "labels": {
+          "opentelemetry.io/name": "payment",
+          "app.kubernetes.io/component": "payment",
+          "app.kubernetes.io/name": "payment",
+          "app.kubernetes.io/part-of": "webshop"
+        },
+        "namespace": "shop"
+      },
+      "spec": {
+        "type": "ClusterIP",
+        "ports": [
+          {
+            "port": 8080,
+            "name": "tcp-service",
+            "targetPort": 8080
+          }
+        ],
+        "selector": {
+          "opentelemetry.io/name": "payment"
+        }
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "ConfigMap",
+      "metadata": {
+        "name": "postgres-init",
+        "labels": {
+          "app.kubernetes.io/component": "postgres",
+          "app.kubernetes.io/name": "postgres"
+        },
+        "namespace": "datastore"
+      },
+      "data": {
+        "init.sql": "-- Copyright The OpenTelemetry Authors\n-- SPDX-License-Identifier: Apache-2.0\n\n-- Enable pg_stat_statements in the target postgres database\nCREATE EXTENSION IF NOT EXISTS pg_stat_statements;\n\n-- Create application user\nCREATE USER shop_user WITH PASSWORD 'shop_password';\n\n-- Create application database\nCREATE DATABASE shop_db OWNER shop_user;\n\n-- Create monitoring user with pg_monitor role (visibility on all databases and schemas)\nCREATE USER monitoring_user WITH PASSWORD 'monitoring_password';\nGRANT pg_monitor TO monitoring_user;\n\n-- Switch to the application database\n\\connect shop_db\n\n-- Enable pg_stat_statements in the application database\nCREATE EXTENSION IF NOT EXISTS pg_stat_statements;\n\n-- Accounting Service: create a schema\nCREATE SCHEMA accounting;\nGRANT USAGE ON SCHEMA accounting TO shop_user;\n\n-- Accounting Service: create tables\nCREATE TABLE accounting.\"order\" (\n    order_id TEXT PRIMARY KEY\n);\n\nCREATE TABLE accounting.shipping (\n    shipping_tracking_id TEXT PRIMARY KEY,\n    shipping_cost_currency_code TEXT NOT NULL,\n    shipping_cost_units BIGINT NOT NULL,\n    shipping_cost_nanos INT NOT NULL,\n    street_address TEXT,\n    city TEXT,\n    state TEXT,\n    country TEXT,\n    zip_code TEXT,\n    order_id TEXT NOT NULL,\n    FOREIGN KEY (order_id) REFERENCES accounting.\"order\"(order_id) ON DELETE CASCADE\n);\n\nCREATE TABLE accounting.orderitem (\n    item_cost_currency_code TEXT NOT NULL,\n    item_cost_units BIGINT NOT NULL,\n    item_cost_nanos INT NOT NULL,\n    product_id TEXT NOT NULL,\n    quantity INT NOT NULL,\n    order_id TEXT NOT NULL,\n    PRIMARY KEY (order_id, product_id),\n    FOREIGN KEY (order_id) REFERENCES accounting.\"order\"(order_id) ON DELETE CASCADE\n);\n\n-- Accounting Service: grant permission to schema\nGRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA accounting TO shop_user;\n\n-- Product Catalog Service: create a schema\nCREATE SCHEMA catalog;\nGRANT USAGE ON SCHEMA catalog TO shop_user;\n\n-- Product Catalog Service: create tables\nCREATE TABLE catalog.products (\n    id TEXT PRIMARY KEY,\n    name TEXT NOT NULL,\n    description TEXT,\n    picture TEXT,\n    price_currency_code TEXT NOT NULL,\n    price_units BIGINT NOT NULL,\n    price_nanos INT NOT NULL,\n    categories TEXT\n);\n\n-- Product Catalog Service: grant permission to schema\nGRANT SELECT ON ALL TABLES IN SCHEMA catalog TO shop_user;\n\n-- Product Catalog Service: add product data\nINSERT INTO catalog.products (id, name, description, picture, price_currency_code, price_units, price_nanos, categories)\nVALUES\n    ('K4NTR1V8QD', 'Cast Iron Skillet', 'A 10-inch pre-seasoned cast iron skillet that goes from stovetop to oven to table. Heats evenly, holds heat, and only gets better with use.', 'CastIronSkillet.jpg', 'USD', 34, 950000000, 'kitchen'),\n    ('WQ7ZPL2M9A', 'Ceramic Pour-Over Kettle', 'A 1-litre stovetop kettle with a gooseneck spout for controlled pouring and a built-in thermometer for precise brewing.', 'PourOverKettle.jpg', 'USD', 59, 0, 'kitchen'),\n    ('RB3HXD5T7C', 'Packable Travel Blanket', 'A lightweight fleece blanket that folds into its own pouch. Fits in a carry-on and doubles as a pillow.', 'TravelBlanket.jpg', 'USD', 29, 950000000, 'bedding,travel'),\n    ('F8YQ2NLV3E', 'Microfiber Cleaning Cloth Set', 'Twelve lint-free microfiber cloths for glass, screens and countertops. Machine washable and reusable hundreds of times.', 'CleaningClothSet.jpg', 'USD', 12, 990000000, 'cleaning'),\n    ('T6MJ4CQ9WR', 'Bamboo Cutting Board', 'A large end-grain bamboo board with a juice groove and non-slip feet. Gentle on knives and easy to clean.', 'BambooCuttingBoard.jpg', 'USD', 42, 500000000, 'kitchen'),\n    ('HZ2VKD7P4N', 'Smart LED Desk Lamp', 'A dimmable desk lamp with adjustable colour temperature, a USB charging port and a 45-minute auto-off timer.', 'SmartDeskLamp.jpg', 'USD', 64, 0, 'lighting'),\n    ('C9XWQ3RM6B', 'Rechargeable Hand Torch', 'A compact 800-lumen torch with three brightness modes and a USB-C rechargeable battery that lasts up to 20 hours.', 'HandTorch.jpg', 'USD', 27, 80000000, 'outdoor,lighting'),\n    ('M5DLG8ZT2Y', 'Oak Bookshelf Kit', 'A five-shelf solid oak bookcase shipped flat with all fittings. Assembles in under an hour with the included tools.', 'OakBookshelf.jpg', 'USD', 219, 0, 'furniture,assembly'),\n    ('V3PRN6XK8H', 'Linen Table Runner', 'A stonewashed linen runner in natural tones, 180 cm long. Softens with every wash and resists wrinkles.', 'LinenTableRunner.jpg', 'USD', 38, 950000000, 'decor'),\n    ('A7SGKJ4E1U', 'The Slow Kitchen Cookbook', 'Ninety seasonal recipes built around one-pot cooking, batch prep and leftovers, with notes on pantry staples.', 'SlowKitchenCookbook.jpg', 'USD', 24, 990000000, 'books');\n"
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Service",
+      "metadata": {
+        "name": "postgres",
+        "labels": {
+          "app.kubernetes.io/component": "postgres",
+          "app.kubernetes.io/name": "postgres"
+        },
+        "namespace": "datastore"
+      },
+      "spec": {
+        "type": "ClusterIP",
+        "clusterIP": "None",
+        "ports": [
+          {
+            "port": 5432,
+            "name": "postgres",
+            "targetPort": 5432
+          }
+        ],
+        "selector": {
+          "app.kubernetes.io/name": "postgres"
+        }
+      }
+    },
+    {
+      "apiVersion": "apps/v1",
+      "kind": "StatefulSet",
+      "metadata": {
+        "name": "postgres",
+        "labels": {
+          "app.kubernetes.io/component": "postgres",
+          "app.kubernetes.io/name": "postgres"
+        },
+        "namespace": "datastore"
+      },
+      "spec": {
+        "serviceName": "postgres",
+        "replicas": 1,
+        "selector": {
+          "matchLabels": {
+            "app.kubernetes.io/name": "postgres"
+          }
+        },
+        "template": {
+          "metadata": {
+            "labels": {
+              "app.kubernetes.io/name": "postgres"
+            }
+          },
+          "spec": {
+            "containers": [
+              {
+                "name": "postgres",
+                "image": "postgres:17@sha256:d74eeac9a635390a49bc21bd49fccd973de707e2a53a76ac49b552b8712ec46f",
+                "imagePullPolicy": "IfNotPresent",
+                "ports": [
+                  {
+                    "containerPort": 5432,
+                    "name": "postgres"
+                  }
+                ],
+                "env": [
+                  {
+                    "name": "POSTGRES_DB",
+                    "value": "shop"
+                  },
+                  {
+                    "name": "POSTGRES_USER",
+                    "value": "shop"
+                  },
+                  {
+                    "name": "POSTGRES_PASSWORD",
+                    "valueFrom": {
+                      "secretKeyRef": {
+                        "name": "postgres",
+                        "key": "POSTGRES_PASSWORD"
+                      }
+                    }
+                  },
+                  {
+                    "name": "PGDATA",
+                    "value": "/var/lib/postgresql/data/pgdata"
+                  }
+                ],
+                "volumeMounts": [
+                  {
+                    "name": "data",
+                    "mountPath": "/var/lib/postgresql/data"
+                  },
+                  {
+                    "name": "init",
+                    "mountPath": "/docker-entrypoint-initdb.d",
+                    "readOnly": true
+                  }
+                ],
+                "resources": {
+                  "requests": {
+                    "cpu": "100m",
+                    "memory": "256Mi"
+                  }
+                }
+              }
+            ],
+            "volumes": [
+              {
+                "name": "init",
+                "configMap": {
+                  "name": "postgres-init"
+                }
+              }
+            ]
+          }
+        },
+        "volumeClaimTemplates": [
+          {
+            "metadata": {
+              "name": "data"
+            },
+            "spec": {
+              "accessModes": [
+                "ReadWriteOnce"
+              ],
+              "resources": {
+                "requests": {
+                  "storage": "100Gi"
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "apps/v1",
+      "kind": "Deployment",
+      "metadata": {
+        "name": "product-catalog",
+        "labels": {
+          "opentelemetry.io/name": "product-catalog",
+          "app.kubernetes.io/version": "3.0.0",
+          "app.kubernetes.io/component": "product-catalog",
+          "app.kubernetes.io/name": "product-catalog",
+          "app.kubernetes.io/part-of": "webshop"
+        },
+        "namespace": "shop"
+      },
+      "spec": {
+        "replicas": 1,
+        "revisionHistoryLimit": 10,
+        "selector": {
+          "matchLabels": {
+            "opentelemetry.io/name": "product-catalog"
+          }
+        },
+        "template": {
+          "metadata": {
+            "labels": {
+              "opentelemetry.io/name": "product-catalog",
+              "app.kubernetes.io/version": "3.0.0",
+              "app.kubernetes.io/component": "product-catalog",
+              "app.kubernetes.io/name": "product-catalog"
+            },
+            "annotations": {
+              "resource.opentelemetry.io/service.namespace": "webshop"
+            }
+          },
+          "spec": {
+            "initContainers": [
+              {
+                "name": "wait-for-postgres",
+                "image": "busybox:latest@sha256:fd7dc98638c8e305f4dc34e979f1c0fdfdcaeb0fbf8fcff77ae834b6da3d7e6e",
+                "command": [
+                  "sh",
+                  "-c",
+                  "until nc -z -v -w30 postgres.datastore.svc.cluster.local 5432; do echo waiting for postgres.datastore; sleep 2; done;"
+                ]
+              }
+            ],
+            "containers": [
+              {
+                "name": "product-catalog",
+                "image": "public.ecr.aws/v4z2v9g0/webshop/product-catalog:2026.09.07.1@sha256:f2e7e5795ce572e9f37f3ff999b55f3ed6e313e852155e23cb2504c96c781da1",
+                "imagePullPolicy": "IfNotPresent",
+                "ports": [
+                  {
+                    "containerPort": 8080,
+                    "name": "service"
+                  }
+                ],
+                "env": [
+                  {
+                    "name": "OTEL_SERVICE_NAME",
+                    "valueFrom": {
+                      "fieldRef": {
+                        "apiVersion": "v1",
+                        "fieldPath": "metadata.labels['app.kubernetes.io/component']"
+                      }
+                    }
+                  },
+                  {
+                    "name": "PRODUCT_CATALOG_PORT",
+                    "value": "8080"
+                  },
+                  {
+                    "name": "GOMEMLIMIT",
+                    "value": "16MiB"
+                  },
+                  {
+                    "name": "OTEL_SEMCONV_STABILITY_OPT_IN",
+                    "value": "database"
+                  },
+                  {
+                    "name": "DB_CONNECTION_STRING",
+                    "value": "postgres://shop_user:shop_password@postgres.datastore.svc.cluster.local:5432/shop_db?sslmode=disable"
+                  },
+                  {
+                    "name": "FLAGD_HOST",
+                    "value": "flagd"
+                  },
+                  {
+                    "name": "FLAGD_PORT",
+                    "value": "8013"
+                  },
+                  {
+                    "name": "OTEL_COLLECTOR_NAME",
+                    "value": "otel-collector.telemetry.svc.cluster.local"
+                  },
+                  {
+                    "name": "OTEL_EXPORTER_OTLP_ENDPOINT",
+                    "value": "http://$(OTEL_COLLECTOR_NAME):4317"
+                  },
+                  {
+                    "name": "OTEL_EXPORTER_OTLP_PROTOCOL",
+                    "value": "grpc"
+                  },
+                  {
+                    "name": "OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE",
+                    "value": "cumulative"
+                  },
+                  {
+                    "name": "OTEL_RESOURCE_ATTRIBUTES",
+                    "value": "service.version=3.0.0,service.criticality=high"
+                  }
+                ],
+                "resources": {
+                  "limits": {
+                    "memory": "60Mi"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Service",
+      "metadata": {
+        "name": "product-catalog",
+        "labels": {
+          "opentelemetry.io/name": "product-catalog",
+          "app.kubernetes.io/component": "product-catalog",
+          "app.kubernetes.io/name": "product-catalog",
+          "app.kubernetes.io/part-of": "webshop"
+        },
+        "namespace": "shop"
+      },
+      "spec": {
+        "type": "ClusterIP",
+        "ports": [
+          {
+            "port": 8080,
+            "name": "tcp-service",
+            "targetPort": 8080
+          }
+        ],
+        "selector": {
+          "opentelemetry.io/name": "product-catalog"
+        }
+      }
+    },
+    {
+      "apiVersion": "apps/v1",
+      "kind": "Deployment",
+      "metadata": {
+        "name": "quote",
+        "labels": {
+          "opentelemetry.io/name": "quote",
+          "app.kubernetes.io/version": "3.0.0",
+          "app.kubernetes.io/component": "quote",
+          "app.kubernetes.io/name": "quote",
+          "app.kubernetes.io/part-of": "webshop"
+        },
+        "namespace": "shop"
+      },
+      "spec": {
+        "replicas": 1,
+        "revisionHistoryLimit": 10,
+        "selector": {
+          "matchLabels": {
+            "opentelemetry.io/name": "quote"
+          }
+        },
+        "template": {
+          "metadata": {
+            "labels": {
+              "opentelemetry.io/name": "quote",
+              "app.kubernetes.io/version": "3.0.0",
+              "app.kubernetes.io/component": "quote",
+              "app.kubernetes.io/name": "quote"
+            },
+            "annotations": {
+              "resource.opentelemetry.io/service.namespace": "webshop"
+            }
+          },
+          "spec": {
+            "containers": [
+              {
+                "name": "quote",
+                "image": "public.ecr.aws/v4z2v9g0/webshop/quote:2026.09.07.1@sha256:681a0d48de19e577a523777e9a630c910ecaf51c7f248a78b85d66ff022d6a59",
+                "imagePullPolicy": "IfNotPresent",
+                "ports": [
+                  {
+                    "containerPort": 8080,
+                    "name": "service"
+                  }
+                ],
+                "env": [
+                  {
+                    "name": "OTEL_SERVICE_NAME",
+                    "valueFrom": {
+                      "fieldRef": {
+                        "apiVersion": "v1",
+                        "fieldPath": "metadata.labels['app.kubernetes.io/component']"
+                      }
+                    }
+                  },
+                  {
+                    "name": "QUOTE_PORT",
+                    "value": "8080"
+                  },
+                  {
+                    "name": "FLAGD_HOST",
+                    "value": "flagd"
+                  },
+                  {
+                    "name": "FLAGD_PORT",
+                    "value": "8013"
+                  },
+                  {
+                    "name": "OTEL_COLLECTOR_NAME",
+                    "value": "otel-collector.telemetry.svc.cluster.local"
+                  },
+                  {
+                    "name": "OTEL_EXPORTER_OTLP_ENDPOINT",
+                    "value": "http://$(OTEL_COLLECTOR_NAME):4317"
+                  },
+                  {
+                    "name": "OTEL_EXPORTER_OTLP_PROTOCOL",
+                    "value": "grpc"
+                  },
+                  {
+                    "name": "OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE",
+                    "value": "cumulative"
+                  },
+                  {
+                    "name": "OTEL_RESOURCE_ATTRIBUTES",
+                    "value": "service.version=3.0.0,service.criticality=low"
+                  }
+                ],
+                "resources": {
+                  "limits": {
+                    "memory": "40Mi"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Service",
+      "metadata": {
+        "name": "quote",
+        "labels": {
+          "opentelemetry.io/name": "quote",
+          "app.kubernetes.io/component": "quote",
+          "app.kubernetes.io/name": "quote",
+          "app.kubernetes.io/part-of": "webshop"
+        },
+        "namespace": "shop"
+      },
+      "spec": {
+        "type": "ClusterIP",
+        "ports": [
+          {
+            "port": 8080,
+            "name": "tcp-service",
+            "targetPort": 8080
+          }
+        ],
+        "selector": {
+          "opentelemetry.io/name": "quote"
+        }
+      }
+    },
+    {
+      "apiVersion": "apps/v1",
+      "kind": "Deployment",
+      "metadata": {
+        "name": "recommendation",
+        "labels": {
+          "opentelemetry.io/name": "recommendation",
+          "app.kubernetes.io/version": "3.0.0",
+          "app.kubernetes.io/component": "recommendation",
+          "app.kubernetes.io/name": "recommendation",
+          "app.kubernetes.io/part-of": "webshop"
+        },
+        "namespace": "shop"
+      },
+      "spec": {
+        "replicas": 1,
+        "revisionHistoryLimit": 10,
+        "selector": {
+          "matchLabels": {
+            "opentelemetry.io/name": "recommendation"
+          }
+        },
+        "template": {
+          "metadata": {
+            "labels": {
+              "opentelemetry.io/name": "recommendation",
+              "app.kubernetes.io/version": "3.0.0",
+              "app.kubernetes.io/component": "recommendation",
+              "app.kubernetes.io/name": "recommendation"
+            },
+            "annotations": {
+              "resource.opentelemetry.io/service.namespace": "webshop"
+            }
+          },
+          "spec": {
+            "containers": [
+              {
+                "name": "recommendation",
+                "image": "public.ecr.aws/v4z2v9g0/webshop/recommendation:2026.09.07.2@sha256:cd7f0f10490f7bc831931c2bda5983c34902e51983bdb3abad124328343f2710",
+                "imagePullPolicy": "IfNotPresent",
+                "ports": [
+                  {
+                    "containerPort": 8080,
+                    "name": "service"
+                  }
+                ],
+                "env": [
+                  {
+                    "name": "OTEL_SERVICE_NAME",
+                    "valueFrom": {
+                      "fieldRef": {
+                        "apiVersion": "v1",
+                        "fieldPath": "metadata.labels['app.kubernetes.io/component']"
+                      }
+                    }
+                  },
+                  {
+                    "name": "RECOMMENDATION_PORT",
+                    "value": "8080"
+                  },
+                  {
+                    "name": "PRODUCT_CATALOG_ADDR",
+                    "value": "product-catalog:8080"
+                  },
+                  {
+                    "name": "OTEL_PYTHON_LOG_CORRELATION",
+                    "value": "true"
+                  },
+                  {
+                    "name": "PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION",
+                    "value": "python"
+                  },
+                  {
+                    "name": "FLAGD_HOST",
+                    "value": "flagd"
+                  },
+                  {
+                    "name": "FLAGD_PORT",
+                    "value": "8013"
+                  },
+                  {
+                    "name": "OTEL_COLLECTOR_NAME",
+                    "value": "otel-collector.telemetry.svc.cluster.local"
+                  },
+                  {
+                    "name": "OTEL_EXPORTER_OTLP_ENDPOINT",
+                    "value": "http://$(OTEL_COLLECTOR_NAME):4317"
+                  },
+                  {
+                    "name": "OTEL_EXPORTER_OTLP_PROTOCOL",
+                    "value": "grpc"
+                  },
+                  {
+                    "name": "OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE",
+                    "value": "cumulative"
+                  },
+                  {
+                    "name": "OTEL_RESOURCE_ATTRIBUTES",
+                    "value": "service.version=3.0.0,service.criticality=medium"
+                  }
+                ],
+                "resources": {
+                  "limits": {
+                    "memory": "200Mi"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Service",
+      "metadata": {
+        "name": "recommendation",
+        "labels": {
+          "opentelemetry.io/name": "recommendation",
+          "app.kubernetes.io/component": "recommendation",
+          "app.kubernetes.io/name": "recommendation",
+          "app.kubernetes.io/part-of": "webshop"
+        },
+        "namespace": "shop"
+      },
+      "spec": {
+        "type": "ClusterIP",
+        "ports": [
+          {
+            "port": 8080,
+            "name": "tcp-service",
+            "targetPort": 8080
+          }
+        ],
+        "selector": {
+          "opentelemetry.io/name": "recommendation"
+        }
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Service",
+      "metadata": {
+        "name": "redis",
+        "labels": {
+          "app.kubernetes.io/component": "redis",
+          "app.kubernetes.io/name": "redis"
+        },
+        "namespace": "datastore"
+      },
+      "spec": {
+        "type": "ClusterIP",
+        "clusterIP": "None",
+        "ports": [
+          {
+            "port": 6379,
+            "name": "redis",
+            "targetPort": 6379
+          }
+        ],
+        "selector": {
+          "app.kubernetes.io/name": "redis"
+        }
+      }
+    },
+    {
+      "apiVersion": "apps/v1",
+      "kind": "StatefulSet",
+      "metadata": {
+        "name": "redis",
+        "labels": {
+          "app.kubernetes.io/component": "redis",
+          "app.kubernetes.io/name": "redis"
+        },
+        "namespace": "datastore"
+      },
+      "spec": {
+        "serviceName": "redis",
+        "replicas": 1,
+        "selector": {
+          "matchLabels": {
+            "app.kubernetes.io/name": "redis"
+          }
+        },
+        "template": {
+          "metadata": {
+            "labels": {
+              "app.kubernetes.io/name": "redis"
+            }
+          },
+          "spec": {
+            "containers": [
+              {
+                "name": "redis",
+                "image": "redis:7@sha256:c6eabf748fc7a61dbb5a705c78bcf3d6377b1127a97d0ce965c11c44ba46896f",
+                "imagePullPolicy": "IfNotPresent",
+                "command": [
+                  "redis-server",
+                  "--appendonly",
+                  "yes",
+                  "--maxmemory",
+                  "256mb",
+                  "--maxmemory-policy",
+                  "noeviction"
+                ],
+                "ports": [
+                  {
+                    "containerPort": 6379,
+                    "name": "redis"
+                  }
+                ],
+                "volumeMounts": [
+                  {
+                    "name": "data",
+                    "mountPath": "/data"
+                  }
+                ],
+                "resources": {
+                  "requests": {
+                    "cpu": "100m",
+                    "memory": "256Mi"
+                  }
+                }
+              }
+            ]
+          }
+        },
+        "volumeClaimTemplates": [
+          {
+            "metadata": {
+              "name": "data"
+            },
+            "spec": {
+              "accessModes": [
+                "ReadWriteOnce"
+              ],
+              "resources": {
+                "requests": {
+                  "storage": "100Gi"
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "apps/v1",
+      "kind": "Deployment",
+      "metadata": {
+        "name": "shipping",
+        "labels": {
+          "opentelemetry.io/name": "shipping",
+          "app.kubernetes.io/version": "3.0.0",
+          "app.kubernetes.io/component": "shipping",
+          "app.kubernetes.io/name": "shipping",
+          "app.kubernetes.io/part-of": "webshop"
+        },
+        "namespace": "shop"
+      },
+      "spec": {
+        "replicas": 1,
+        "revisionHistoryLimit": 10,
+        "selector": {
+          "matchLabels": {
+            "opentelemetry.io/name": "shipping"
+          }
+        },
+        "template": {
+          "metadata": {
+            "labels": {
+              "opentelemetry.io/name": "shipping",
+              "app.kubernetes.io/version": "3.0.0",
+              "app.kubernetes.io/component": "shipping",
+              "app.kubernetes.io/name": "shipping"
+            },
+            "annotations": {
+              "resource.opentelemetry.io/service.namespace": "webshop"
+            }
+          },
+          "spec": {
+            "containers": [
+              {
+                "name": "shipping",
+                "image": "public.ecr.aws/v4z2v9g0/webshop/shipping:2026.09.07.1@sha256:014a7209b5644c3a441cbc16e120840556103ff200b5c52b8ea8d603ec4d8ddb",
+                "imagePullPolicy": "IfNotPresent",
+                "ports": [
+                  {
+                    "containerPort": 8080,
+                    "name": "service"
+                  }
+                ],
+                "env": [
+                  {
+                    "name": "OTEL_SERVICE_NAME",
+                    "valueFrom": {
+                      "fieldRef": {
+                        "apiVersion": "v1",
+                        "fieldPath": "metadata.labels['app.kubernetes.io/component']"
+                      }
+                    }
+                  },
+                  {
+                    "name": "SHIPPING_PORT",
+                    "value": "8080"
+                  },
+                  {
+                    "name": "QUOTE_ADDR",
+                    "value": "http://quote:8080"
+                  },
+                  {
+                    "name": "FLAGD_HOST",
+                    "value": "flagd"
+                  },
+                  {
+                    "name": "FLAGD_PORT",
+                    "value": "8013"
+                  },
+                  {
+                    "name": "OTEL_COLLECTOR_NAME",
+                    "value": "otel-collector.telemetry.svc.cluster.local"
+                  },
+                  {
+                    "name": "OTEL_EXPORTER_OTLP_ENDPOINT",
+                    "value": "http://$(OTEL_COLLECTOR_NAME):4318"
+                  },
+                  {
+                    "name": "OTEL_EXPORTER_OTLP_PROTOCOL",
+                    "value": "grpc"
+                  },
+                  {
+                    "name": "OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE",
+                    "value": "cumulative"
+                  },
+                  {
+                    "name": "OTEL_RESOURCE_ATTRIBUTES",
+                    "value": "service.version=3.0.0,service.criticality=high"
+                  }
+                ],
+                "resources": {
+                  "limits": {
+                    "memory": "30Mi"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Service",
+      "metadata": {
+        "name": "shipping",
+        "labels": {
+          "opentelemetry.io/name": "shipping",
+          "app.kubernetes.io/component": "shipping",
+          "app.kubernetes.io/name": "shipping",
+          "app.kubernetes.io/part-of": "webshop"
+        },
+        "namespace": "shop"
+      },
+      "spec": {
+        "type": "ClusterIP",
+        "ports": [
+          {
+            "port": 8080,
+            "name": "tcp-service",
+            "targetPort": 8080
+          }
+        ],
+        "selector": {
+          "opentelemetry.io/name": "shipping"
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: session-indexer
+  namespace: batch
+  labels: {app: session-indexer}
+spec:
+  replicas: 1
+  selector: {matchLabels: {app: session-indexer}}
+  template:
+    metadata:
+      labels: {app: session-indexer}
+    spec:
+      containers:
+        - name: main
+          image: fixture.local/session-indexer:v1
+          env:
+            - {name: CACHE_DIR, value: /cache}
+          volumeMounts:
+            - name: cache-vol
+              mountPath: /cache
+          resources:
+            requests: {cpu: 10m, memory: 32Mi}
+            limits: {memory: 96Mi}
+      volumes:
+        - name: cache-vol
+          emptyDir: {medium: Memory, sizeLimit: 256Mi}

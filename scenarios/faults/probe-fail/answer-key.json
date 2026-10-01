@@ -1,0 +1,20 @@
+{
+  "scenario": "probe-fail",
+  "ground_truth": {
+    "cause": "In batch, webhook-relay prints listening on :9999 but only runs sleep infinity. No process opens TCP port 9999, which both readiness and liveness probes target.",
+    "impact": "Webhook-relay is unready and eventually restarted by liveness checks. It is not the admission webhook and is not on the shop request path.",
+    "mitigation": "Implement the required listener on webhook-relay port 9999 and deploy that implementation, or stop the unused workload as containment. Changing probes to another unverified port, increasing delays or removing health checks does not create a functioning listener.",
+    "causal_change": {
+      "eligible": false,
+      "reason": "This scenario does not provide a controlled introducing commit and recorded product access to its history."
+    }
+  },
+  "implementation_sources": [
+    "scenarios/faults/probe-fail/manifests/deployment.yaml",
+    "scenarios/faults/probe-fail/manifests/kustomization.yaml",
+    "scenarios/faults/probe-fail/run.sh",
+    "bench/app_manifests.py",
+    "scenarios/shop/manifests.json",
+    "scenarios/shop/flags.json"
+  ]
+}

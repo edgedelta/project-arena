@@ -1,0 +1,18 @@
+{
+  "scenario": "composite-noise-fault",
+  "ground_truth": {
+    "cause": "Two independent batch signals coexist: asset-syncer cannot pull missing-hotfix, while audit-exporter emits scripted gateway-timeout log spam without making upstream requests.",
+    "impact": "The image-pull failure prevents asset-syncer from starting; the noisy ERROR messages do not establish a real gateway or shop outage. Do not merge these into one dependency failure.",
+    "mitigation": "Correct the asset-syncer image using its intended built image or publish the intended missing tag. Separately stop/correct audit-exporter noise or explicitly explain why it needs no service repair. Verify pod startup and log behavior without treating noise as a gateway outage.",
+    "causal_change": {
+      "eligible": false,
+      "reason": "This scenario does not provide a controlled introducing commit and recorded product access to its history."
+    }
+  },
+  "implementation_sources": [
+    "scenarios/faults/composite-noise-fault/manifests/kustomization.yaml",
+    "bench/app_manifests.py",
+    "scenarios/shop/manifests.json",
+    "scenarios/shop/flags.json"
+  ]
+}

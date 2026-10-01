@@ -1,0 +1,20 @@
+{
+  "scenario": "crashloop",
+  "ground_truth": {
+    "cause": "In batch, report-generator sleeps 30 seconds then unconditionally exits 1. Its connection-refused message is scripted; the program performs no upstream connection.",
+    "impact": "The report-generator worker cannot remain running. The shop request path does not depend on this worker; do not infer a database or network outage from its message.",
+    "mitigation": "Correct the report-generator program to perform its intended work without the unconditional failure and deploy the rebuilt image, or stop the unused worker as explicitly limited containment. Restarting unchanged code does not fix it.",
+    "causal_change": {
+      "eligible": false,
+      "reason": "This scenario does not provide a controlled introducing commit and recorded product access to its history."
+    }
+  },
+  "implementation_sources": [
+    "scenarios/faults/crashloop/manifests/deployment.yaml",
+    "scenarios/faults/crashloop/manifests/kustomization.yaml",
+    "scenarios/faults/crashloop/run.sh",
+    "bench/app_manifests.py",
+    "scenarios/shop/manifests.json",
+    "scenarios/shop/flags.json"
+  ]
+}

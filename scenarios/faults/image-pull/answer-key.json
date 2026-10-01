@@ -1,0 +1,20 @@
+{
+  "scenario": "image-pull",
+  "ground_truth": {
+    "cause": "In batch, asset-syncer references the nonexistent missing-hotfix image tag in the configured registry, so its container cannot be pulled.",
+    "impact": "Asset-syncer cannot start. The shop has no runtime dependency on it; this is not an application crash or a general registry outage.",
+    "mitigation": "Build and publish the intended asset-syncer implementation under the referenced tag, or change the deployment to the built asset-syncer image/tag recorded for this run. Verify image availability and rollout; an arbitrary replacement image is not a demonstrated fix.",
+    "causal_change": {
+      "eligible": false,
+      "reason": "This scenario does not provide a controlled introducing commit and recorded product access to its history."
+    }
+  },
+  "implementation_sources": [
+    "scenarios/faults/image-pull/manifests/deployment.yaml",
+    "scenarios/faults/image-pull/manifests/kustomization.yaml",
+    "scenarios/faults/image-pull/run.sh",
+    "bench/app_manifests.py",
+    "scenarios/shop/manifests.json",
+    "scenarios/shop/flags.json"
+  ]
+}

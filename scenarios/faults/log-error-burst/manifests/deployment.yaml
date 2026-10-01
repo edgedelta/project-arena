@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: audit-exporter
+  namespace: batch
+  labels: {app: audit-exporter}
+spec:
+  replicas: 1
+  selector: {matchLabels: {app: audit-exporter}}
+  template:
+    metadata:
+      labels: {app: audit-exporter}
+    spec:
+      containers:
+        - name: main
+          image: fixture.local/audit-exporter:v1
+          resources:
+            requests: {cpu: 20m, memory: 16Mi}
+            limits: {memory: 32Mi}

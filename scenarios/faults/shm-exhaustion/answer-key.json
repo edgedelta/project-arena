@@ -1,0 +1,20 @@
+{
+  "scenario": "shm-exhaustion",
+  "ground_truth": {
+    "cause": "In batch, media-transcoder writes SCRATCH_MIB=128 to /dev/shm without an enlarged shared-memory mount. The usual 64Mi runtime tmpfs is exhausted and the script exits on its failed scratch write. The container memory limit is also only 128Mi.",
+    "impact": "The media-transcoder worker fails. This is shared-memory capacity, not node disk exhaustion or evidence of an upstream service outage. If the runtime has a different default, use actual observed mount capacity.",
+    "mitigation": "Provide a memory-backed /dev/shm volume with capacity for the 128Mi scratch allocation and raise the container memory budget to include scratch plus process overhead, then verify the write succeeds. Raising only container memory does not enlarge /dev/shm; reducing scratch is valid only if application requirements justify it.",
+    "causal_change": {
+      "eligible": false,
+      "reason": "This scenario does not provide a controlled introducing commit and recorded product access to its history."
+    }
+  },
+  "implementation_sources": [
+    "scenarios/faults/shm-exhaustion/manifests/deployment.yaml",
+    "scenarios/faults/shm-exhaustion/manifests/kustomization.yaml",
+    "scenarios/faults/shm-exhaustion/run.sh",
+    "bench/app_manifests.py",
+    "scenarios/shop/manifests.json",
+    "scenarios/shop/flags.json"
+  ]
+}
