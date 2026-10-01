@@ -1,7 +1,8 @@
 """Render the original shop topology with disposable database credentials.
 
 Bundled manifests preserve the services, selectors, resources, persistent stores,
-and image digests used by the benchmark. Registry/tag arguments select fault images;
+and application topology. Public images are pinned for new runs; historical
+mutable image tags do not establish identical image bytes. Registry/tag arguments select fault images;
 the application uses its separately pinned public images.
 """
 import json

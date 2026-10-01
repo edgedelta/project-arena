@@ -64,6 +64,47 @@ class GitOpsTests(unittest.TestCase):
         with patch('bench.cluster_ops.obj', return_value={'data': {'deployment_mode': 'gitops'}}):
             with self.assertRaisesRegex(ValueError, 'Argo'): require_direct('context')
 
+    def test_initial_healthy_sync_performs_no_data_repairs(self):
+        with patch('bench.retirement.wait_pruned'), patch('bench.retirement.restore', return_value=[]) as restore, patch('bench.retirement.wait_baseline', return_value={'passed': True}), patch('bench.gitops.cluster.verify', return_value={'observed': True}):
+            self.assertTrue(gitops.cleanup({'context': 'test'})['observed'])
+        restore.assert_called_once_with('test', '')
+
+    def test_incomplete_pruning_blocks_cleanup_mutations(self):
+        with patch('bench.retirement.wait_pruned', side_effect=ValueError('injector remains')), patch('bench.retirement.restore') as restore:
+            with self.assertRaisesRegex(ValueError, 'injector remains'):
+                gitops.cleanup({'context': 'test'}, 'pg-lock-hold')
+        restore.assert_not_called()
+
+    def test_argo_sync_policies_match_parent_distinctions(self):
+        repo = self.config['gitops']['app_repo']
+        component = gitops.app('frontend', repo, 'components/frontend', 'shop')['spec']['syncPolicy']
+        self.assertEqual(component, {'automated': {'prune': True, 'selfHeal': True}, 'syncOptions': ['CreateNamespace=true']})
+        batch = gitops.app('batch-jobs', repo, 'batch-active', 'batch')['spec']['syncPolicy']
+        self.assertTrue(batch['automated']['allowEmpty'])
+        flags = gitops.app('flagd-values', repo, 'flagd-values', 'shop')['spec']['syncPolicy']
+        self.assertNotIn('allowEmpty', flags['automated']); self.assertNotIn('syncOptions', flags)
+
+    def test_trigger_is_once_and_failed_delete_remains_explicitly_uncertain(self):
+        saved = {}
+        pod = {'metadata': {'name': 'recommendation-one', 'uid': 'pod-uid'}}
+        def receipt(context, operation_id, data, create=False): saved.update(data)
+        def kube(*args, **kwargs):
+            if 'get' in args: return json.dumps({'items': [pod]})
+            return ''
+        operation = 'a' * 24
+        with patch.object(gitops, 'operation_receipt', side_effect=lambda *args: {'data': saved} if saved else None), patch.object(gitops, 'receipt', side_effect=receipt), patch('bench.gitops.cluster.kube', side_effect=kube) as calls:
+            gitops.trigger_once('ctx', operation, 'commit')
+            gitops.trigger_once('ctx', operation, 'commit')
+        self.assertEqual(sum('delete' in c.args for c in calls.call_args_list), 1)
+        saved.clear()
+        def failing_kube(*args, **kwargs):
+            if 'get' in args: return json.dumps({'items': [pod]})
+            raise RuntimeError('delete did not complete')
+        with patch.object(gitops, 'operation_receipt', side_effect=lambda *args: {'data': saved} if saved else None), patch.object(gitops, 'receipt', side_effect=receipt), patch('bench.gitops.cluster.kube', side_effect=failing_kube):
+            with self.assertRaises(RuntimeError): gitops.trigger_once('ctx', operation, 'commit')
+            self.assertEqual(saved['phase'], 'trigger_started')
+            with self.assertRaisesRegex(ValueError, 'uncertain'): gitops.trigger_once('ctx', operation, 'commit')
+
     def test_repo_path_and_embedded_credentials_rejected(self):
         self.config['gitops']['fault_repo']['path'] = '../other'
         with self.assertRaises(ValueError): gitops.settings(self.config)

@@ -1,8 +1,8 @@
 """Run the 21-scenario suite against an explicitly selected Kubernetes context.
 
 Deploy the shop app and dependencies, apply fault manifests, and check cluster signals
-for the expected failure. Reset replaces benchmark namespaces and their data,
-then redeploys the application and verifies its healthy request path.
+for the expected failure. Reset retires only the injected resources and their persistent fault effects,
+then verifies the baseline without replacing healthy services, data or credentials.
 """
 import json
 import secrets
@@ -39,9 +39,9 @@ def apply(context, manifest):
     return kube(context, "apply", "-f", "-", stdin=json.dumps(manifest))
 
 
-def set_state(context, registry, tag, scenario=""):
+def set_state(context, registry, tag, scenario="", retired_scenario="", reset_pending=False):
     return apply(context, {"apiVersion": "v1", "kind": "ConfigMap", "metadata": meta("suite-state", "benchmark-control"),
-                           "data": {"registry": registry, "tag": tag, "scenario": scenario, "started_at": datetime.datetime.now(datetime.timezone.utc).isoformat().replace("+00:00", "Z")}})
+                           "data": {"registry": registry, "tag": tag, "scenario": scenario, "deployment_mode": "direct", "retired_scenario": retired_scenario, "reset_pending": str(reset_pending).lower(), "started_at": datetime.datetime.now(datetime.timezone.utc).isoformat().replace("+00:00", "Z")}})
 
 
 def state(context):
@@ -65,7 +65,7 @@ def deploy(context, registry, tag):
     if obj(context, "namespace", "benchmark-control") and obj(context, "configmap", "suite-state", "benchmark-control"):
         raise ValueError("Suite already initialized; use reset to restore its disposable state")
     manifest = resources(secrets.token_urlsafe(32), secrets.token_urlsafe(32), registry, tag)
-    # Establish reset state before applying workloads; partial deployment remains recoverable.
+    # Record the deployment attempt before applying workloads, including partial failures.
     apply(context, {"apiVersion": "v1", "kind": "Namespace", "metadata": meta("benchmark-control")})
     set_state(context, registry, tag)
     # Do not print manifest/Secret bodies. Credentials travel only over kubectl stdin.
@@ -97,8 +97,14 @@ def start(context, scenario):
     require_direct(context)
     guard(context)
     current = state(context)
-    if current["scenario"]: raise ValueError("Reset the active case before starting another: " + current["scenario"])
-    objects = fault_objects(scenario, current["registry"], current["tag"])
+    if current["scenario"] or current.get("reset_pending") == "true": raise ValueError("Complete retirement before starting another scenario")
+    from .app_manifests import FLAG_FAULTS
+    from . import retirement
+    retirement.wait_baseline(context, timeout=0)
+    if scenario in FLAG_FAULTS:
+        objects = [retirement.flags(obj(context, "configmap", "flagd-config", "shop"), scenario)]
+    else:
+        objects = fault_objects(scenario, current["registry"], current["tag"])
     for value in objects:
         if not value["metadata"].get("namespace"):
             existing = obj(context, value["kind"], value["metadata"]["name"])
@@ -112,20 +118,39 @@ def start(context, scenario):
 
 
 def reset(context, confirmed=False):
-    if not confirmed: raise ValueError("reset requires --confirm-disposable; it replaces all owned fixture namespaces and generated data")
+    if not confirmed: raise ValueError("reset requires --confirm-disposable; it retires the injected fault and its disposable fault data")
     require_direct(context)
-    guard(context, False)
+    guard(context)
     current = state(context)
-    for kind, name in [("ValidatingWebhookConfiguration", "pod-policy"), ("PersistentVolume", "index-store")]:
-        value = obj(context, kind, name)
-        if value:
-            if not owned(value): raise ValueError("Refusing to delete unowned " + kind + "/" + name)
-            if kind == "ValidatingWebhookConfiguration": kube(context, "delete", kind, name, "--wait=true", "--timeout=120s")
-    kube(context, "delete", "namespace", *NAMESPACES, "--ignore-not-found", "--wait=true", "--timeout=180s")
-    if obj(context, "PersistentVolume", "index-store"):
-        kube(context, "delete", "PersistentVolume", "index-store", "--wait=true", "--timeout=120s")
-    # Fresh database/Redis state and fresh generated credentials, not just deleted injector Jobs.
-    return deploy(context, current["registry"], current["tag"])
+    scenario = current.get("scenario") or current.get("retired_scenario", "")
+    from .app_manifests import FLAG_FAULTS
+    from . import retirement
+    # Record an incomplete retirement so a failed cleanup can be retried and a
+    # new injection cannot silently start on top of residual fault state.
+    set_state(context, current["registry"], current["tag"], retired_scenario=scenario, reset_pending=True)
+    if scenario and scenario not in FLAG_FAULTS:
+        objects = fault_objects(scenario, current["registry"], current["tag"])
+        # A retained PV is removed after its claim, matching the parent helper.
+        deleting = []
+        for value in objects:
+            if value["kind"] == "PersistentVolume": continue
+            metadata = value["metadata"]
+            existing = obj(context, value["kind"], metadata["name"], metadata.get("namespace"))
+            if existing and not owned(existing): raise ValueError("refusing to retire unowned " + value["kind"] + "/" + metadata["name"])
+            deleting.append(value)
+        if deleting:
+            kube(context, "delete", "-f", "-", "--ignore-not-found", "--wait=false", stdin=json.dumps({"apiVersion": "v1", "kind": "List", "items": deleting}))
+    flags = obj(context, "configmap", "flagd-config", "shop")
+    baseline = retirement.flags(flags)
+    if baseline["data"] != flags["data"]: apply(context, baseline)
+    retirement.wait_pruned(context)
+    actions = retirement.restore(context, scenario)
+    checks = retirement.wait_baseline(context)
+    result = verify(context, "healthy", 180)
+    if not result["observed"]: raise ValueError("fault retired, but the healthy application path has not recovered")
+    set_state(context, current["registry"], current["tag"])
+    result.update(retirement=checks, cleanup_actions=actions)
+    return result
 
 
 def http(context, service="frontend", path="/"):
@@ -170,7 +195,17 @@ def check(scenario, evidence):
     logs = evidence.get("logs", "")
     if scenario == "quota-trap": return "requests.cpu" in messages and ("must specify" in messages or "quota" in messages)
     if scenario == "admission-webhook-outage": return "pod-policy" in messages and "webhook" in messages
-    if scenario == "crashloop": return "CrashLoopBackOff" in reasons
+    if scenario == "crashloop":
+        for pod in pods:
+            metadata = pod.get("metadata", {})
+            if not (metadata.get("name", "").startswith("report-generator-") or metadata.get("labels", {}).get("app") == "report-generator"):
+                continue
+            backoff = any(item.get("kind") == "Event" and item.get("reason") == "BackOff" and item.get("involvedObject", {}).get("name") == metadata.get("name") for item in items)
+            for status in pod.get("status", {}).get("containerStatuses", []):
+                if status.get("state", {}).get("waiting", {}).get("reason") == "CrashLoopBackOff": return True
+                if status.get("restartCount", 0) >= 2 and status.get("lastState", {}).get("terminated", {}).get("exitCode") == 1 and backoff:
+                    return True
+        return False
     if scenario == "oom": return "OOMKilled" in terminated
     if scenario == "image-pull": return any(r in reasons for r in ["ImagePullBackOff", "ErrImagePull"])
     if scenario == "missing-config-key": return "CreateContainerConfigError" in reasons

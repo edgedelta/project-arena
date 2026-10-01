@@ -5,7 +5,6 @@ Commands edit local checkouts; committing and pushing remain explicit operator s
 Cluster bootstrap stores generated credentials only in Kubernetes, never in Git.
 """
 import argparse
-import base64
 import datetime
 import json
 import re
@@ -17,6 +16,7 @@ from .__main__ import command
 from .app_manifests import FLAG_FAULTS, NAMESPACES, OWNER, flag_config, meta, resources, secret
 from . import cluster_ops as cluster
 from .records import write
+from . import retirement
 
 
 def settings(config):
@@ -27,7 +27,7 @@ def settings(config):
         if not all(isinstance(repo.get(k), str) and repo[k] for k in ['url', 'checkout', 'revision', 'path']):
             raise ValueError('gitops.' + key + ' needs url, checkout, revision, path')
         path = PurePosixPath(repo['path'])
-        if path.is_absolute() or '..' in path.parts or str(path) == '.': raise ValueError('repository path must be a relative subdirectory')
+        if path.is_absolute() or '..' in path.parts: raise ValueError('repository path must be relative; use . for the repository root')
         url = urlsplit(repo['url'])
         if url.scheme in ['https', 'http'] and (url.username or url.password or url.query):
             raise ValueError('repository URL must not contain credentials or query parameters')
@@ -52,17 +52,24 @@ def kustomization(paths):
 
 
 def app(name, repo, relative, namespace, argo_namespace='argocd'):
+    policy = {'automated': {'prune': True, 'selfHeal': True}}
+    if name == 'batch-jobs': policy['automated']['allowEmpty'] = True
+    if name not in ['platform-root', 'flagd-values', 'arena-control']:
+        policy['syncOptions'] = ['CreateNamespace=true']
+    destination = {'server': 'https://kubernetes.default.svc', 'namespace': namespace} if name == 'platform-root' else {'name': 'in-cluster', 'namespace': namespace}
     return {'apiVersion': 'argoproj.io/v1alpha1', 'kind': 'Application', 'metadata': meta(name, argo_namespace),
             'spec': {'project': 'default', 'source': {'repoURL': repo['url'], 'targetRevision': repo['revision'], 'path': str(PurePosixPath(repo['path']) / relative)},
-                     'destination': {'server': 'https://kubernetes.default.svc', 'namespace': namespace},
-                     'syncPolicy': {'automated': {'prune': True, 'selfHeal': True, 'allowEmpty': True}}}}
+                     'destination': destination, 'syncPolicy': policy}}
 
 
 def export(config):
     cfg = settings(config); apps, faults = cfg['app_repo'], cfg['fault_repo']
+    existing_state = target(faults) / 'control/state.json'
+    if existing_state.exists() and json.loads(existing_state.read_text())['data'].get('scenario'):
+        raise ValueError('retire the active scenario before re-exporting application manifests')
     for repo in [apps, faults]:
         directory = target(repo)
-        if directory.exists() and any(directory.iterdir()) and not (directory / '.arena-gitops.json').exists():
+        if directory.exists() and any(p.name != '.git' for p in directory.iterdir()) and not (directory / '.arena-gitops.json').exists():
             raise ValueError('refusing nonempty unmanaged export path: ' + str(directory))
     for repo in [apps, faults]: put(target(repo) / '.arena-gitops.json', {'format': 'arena-gitops-v1'})
     groups = {}
@@ -111,13 +118,19 @@ def prepare(config, scenario):
     from .scenarios import catalog
     if scenario and scenario not in catalog(): raise ValueError('unknown scenario')
     previous = folder / 'control' / 'state.json'
-    if scenario and previous.exists() and json.loads(previous.read_text())['data'].get('scenario'):
+    previous_state = json.loads(previous.read_text())['data'] if previous.exists() else {}
+    if scenario and previous_state.get('scenario'):
         raise ValueError('prepare, commit, push and sync reset before another fault')
     put(folder / 'batch-active' / 'kustomization.yaml', kustomization(['../library/' + scenario] if scenario and scenario not in FLAG_FAULTS else []))
-    put(folder / 'flagd-values' / 'configmap.json', flag_config(scenario))
+    flag_path = folder / 'flagd-values' / 'configmap.json'
+    current_flags = json.loads(flag_path.read_text()) if flag_path.exists() else flag_config()
+    if scenario in FLAG_FAULTS or not scenario or not flag_path.exists():
+        put(flag_path, retirement.flags(current_flags, scenario))
     put(folder / 'flagd-values' / 'kustomization.yaml', kustomization(['configmap.json']))
+    retired = previous_state.get('scenario') or previous_state.get('retired_scenario', '') if not scenario else ''
     state = {'registry': config.get('registry', 'fixture.local'), 'tag': config.get('tag', 'v1'), 'scenario': scenario,
-             'deployment_mode': 'gitops', 'started_at': datetime.datetime.now(datetime.timezone.utc).isoformat().replace('+00:00', 'Z')}
+             'deployment_mode': 'gitops', 'retired_scenario': retired, 'operation_id': secrets.token_hex(12),
+             'started_at': datetime.datetime.now(datetime.timezone.utc).isoformat().replace('+00:00', 'Z')}
     put(folder / 'control' / 'state.json', {'apiVersion': 'v1', 'kind': 'ConfigMap', 'metadata': meta('suite-state', 'benchmark-control'), 'data': state})
     put(folder / 'control' / 'kustomization.yaml', kustomization(['state.json']))
     return {'mode': 'gitops', 'scenario': scenario, 'prepared': True, 'next': 'Review, commit and push the fault repository, then run sync.'}
@@ -157,7 +170,7 @@ def bootstrap(config):
             if not cluster.obj(context, 'secret', name, namespace): raise ValueError('incomplete bootstrap credentials; restore all bootstrap secrets consistently')
     local_state = json.loads((target(cfg['fault_repo']) / 'control/state.json').read_text())
     if not existing: cluster.apply(context, local_state)
-    root = app('platform-root', cfg['app_repo'], 'apps', cfg.get('namespace', 'argocd'), cfg.get('namespace', 'argocd'))
+    root = app('platform-root', cfg['app_repo'], 'apps', 'default', cfg.get('namespace', 'argocd'))
     cluster.apply(context, root)
     return {'mode': 'gitops', 'commits': commits, 'root_application': 'platform-root', 'next': 'Run sync to verify Argo applied these commits.'}
 
@@ -172,33 +185,82 @@ def sync_matches(applications, expected):
     return failures
 
 
-def cleanup(config):
-    """Clear persistent fault effects only after Argo has pruned the injectors."""
+def operation_receipt(context, operation_id):
+    if not re.fullmatch(r'[a-f0-9]{24,64}', operation_id): raise ValueError('invalid or missing GitOps operation identity; prepare a new operation')
+    return cluster.obj(context, 'configmap', 'operation-' + operation_id, 'benchmark-control')
+
+
+def receipt(context, operation_id, data, create=False):
+    value = {'apiVersion': 'v1', 'kind': 'ConfigMap', 'metadata': meta('operation-' + operation_id, 'benchmark-control'), 'data': {k: str(v) for k, v in data.items()}}
+    if create: cluster.kube(context, 'create', '-f', '-', stdin=json.dumps(value))
+    else: cluster.apply(context, value)
+
+
+def trigger_once(context, operation_id, commit):
+    existing = operation_receipt(context, operation_id)
+    if existing:
+        if existing['data'].get('phase') == 'trigger_done': return existing['data']
+        raise ValueError('an earlier trigger attempt has an uncertain result; inspect its recorded pod before retrying')
+    pods = json.loads(cluster.kube(context, '-n', 'shop', 'get', 'pods', '-l', 'app.kubernetes.io/name=recommendation', '-o', 'json'))['items']
+    if len(pods) != 1: raise ValueError('expected exactly one recommendation pod before admission trigger')
+    pod = pods[0]['metadata']
+    data = {'phase': 'trigger_started', 'commit': commit, 'pod': pod['name'], 'pod_uid': pod['uid'], 'started_at': datetime.datetime.now(datetime.timezone.utc).isoformat()}
+    # Atomic create reserves the operation before deletion. A crash/error leaves an
+    # explicit uncertain receipt rather than silently deleting another replacement.
+    receipt(context, operation_id, data, create=True)
+    cluster.kube(context, '-n', 'shop', 'delete', 'pod', pod['name'], '--wait=false')
+    data.update(phase='trigger_done', finished_at=datetime.datetime.now(datetime.timezone.utc).isoformat())
+    receipt(context, operation_id, data)
+    return data
+
+
+def cleanup(config, retired_scenario='', operation_id=None):
     context = config['context']
-    deadline = time.monotonic() + 120
-    while json.loads(cluster.kube(context, '-n', 'batch', 'get', 'pods,jobs', '-o', 'json'))['items']:
-        if time.monotonic() >= deadline: raise ValueError('injector pods/jobs remain; wait for Argo pruning before reset cleanup')
-        time.sleep(2)
-    for namespace, kind, name in [('datastore', 'statefulset', 'postgres'), ('datastore', 'statefulset', 'redis'), ('shop', 'deployment', 'product-catalog'), ('shop', 'deployment', 'frontend')]:
-        cluster.kube(context, '-n', namespace, 'rollout', 'status', kind + '/' + name, '--timeout=180s')
-    # No FLUSHALL: cart/session keys belong to the running shop.
-    cluster.kube(context, '-n', 'datastore', 'exec', 'statefulset/redis', '--', 'sh', '-c', 'redis-cli --scan --pattern "warm:*" | xargs -r -n 500 redis-cli del >/dev/null; redis-cli config set maxmemory 268435456')
-    postgres = cluster.obj(context, 'secret', 'postgres', 'datastore')
-    password = base64.b64decode(postgres['data']['SHOP_PASSWORD']).decode()
-    sql = "SELECT pg_terminate_backend(l.pid) FROM pg_locks l JOIN pg_stat_activity a ON a.pid=l.pid WHERE l.granted AND l.mode='AccessExclusiveLock' AND l.relation='catalog.products'::regclass AND a.query LIKE 'BEGIN; LOCK TABLE catalog.products IN ACCESS EXCLUSIVE MODE; SELECT pg_sleep(%' AND l.pid<>pg_backend_pid();\n"
-    sql += "ALTER USER shop_user WITH PASSWORD '" + password.replace("'", "''") + "';\n"
-    cluster.kube(context, '-n', 'datastore', 'exec', '-i', 'statefulset/postgres', '--', 'psql', '-U', 'shop', '-d', 'shop_db', '-v', 'ON_ERROR_STOP=1', stdin=sql)
-    # Force clients to establish fresh authenticated connections.
-    cluster.kube(context, '-n', 'shop', 'rollout', 'restart', 'deployment/product-catalog')
-    return cluster.verify(context, 'healthy', 180)
+    retirement.wait_pruned(context)
+    existing = operation_receipt(context, operation_id) if operation_id else None
+    actions = []
+    if not existing or existing['data'].get('phase') != 'cleanup_done':
+        actions = retirement.restore(context, retired_scenario)
+        if operation_id:
+            receipt(context, operation_id, {'phase': 'cleanup_done', 'retired_scenario': retired_scenario, 'finished_at': datetime.datetime.now(datetime.timezone.utc).isoformat()})
+    checks = retirement.wait_baseline(context)
+    result = cluster.verify(context, 'healthy', 180)
+    result.update(retirement=checks, cleanup_actions=actions)
+    return result
 
 
-def sync(config, timeout=300):
-    cfg = settings(config); context = config['context']; commits = heads(config)
+def wait_healthy_applications(context, namespace, expected, timeout):
+    deadline = time.monotonic() + timeout
+    while True:
+        apps = {v['metadata']['name']: v for v in json.loads(cluster.kube(context, '-n', namespace, 'get', 'applications', '-o', 'json'))['items']}
+        failures = sync_matches(apps, expected)
+        failures += [name for name in expected if apps.get(name, {}).get('status', {}).get('health', {}).get('status') != 'Healthy']
+        if not failures: return apps
+        if time.monotonic() >= deadline: raise ValueError('baseline Applications are not Synced and Healthy: ' + ', '.join(sorted(set(failures))))
+        time.sleep(3)
+
+
+def expected_revisions(config, commits):
+    cfg = settings(config)
     children = json.loads((target(cfg['app_repo']) / 'apps' / 'applications.json').read_text())['items']
     expected = {'platform-root': commits['app_repo']}
     for item in children:
         expected[item['metadata']['name']] = commits['fault_repo'] if item['metadata']['name'] in ['batch-jobs', 'flagd-values', 'arena-control'] else commits['app_repo']
+    return expected
+
+
+def ready_to_inject(config):
+    cfg = settings(config); context = config['context']
+    state = cluster.state(context)
+    if state.get('deployment_mode') != 'gitops' or state.get('scenario'):
+        raise ValueError('complete the existing GitOps scenario retirement before preparing another fault')
+    wait_healthy_applications(context, cfg.get('namespace', 'argocd'), expected_revisions(config, heads(config)), 0)
+    retirement.wait_baseline(context, timeout=0)
+
+
+def sync(config, timeout=300):
+    cfg = settings(config); context = config['context']; commits = heads(config)
+    expected = expected_revisions(config, commits)
     namespace = cfg.get('namespace', 'argocd')
     for name in expected:
         try: cluster.kube(context, '-n', namespace, 'annotate', 'application', name, 'argocd.argoproj.io/refresh=hard', '--overwrite')
@@ -212,10 +274,11 @@ def sync(config, timeout=300):
         time.sleep(3)
     state = cluster.state(context)
     scenario = state.get('scenario', '')
-    if scenario in ['quota-trap', 'admission-webhook-outage']:
-        cluster.kube(context, '-n', 'shop', 'delete', 'pod', '-l', 'app.kubernetes.io/name=recommendation', '--wait=false')
-    observed = cleanup(config) if not scenario else cluster.verify(context, scenario, timeout)
-    result = {'mode': 'gitops', 'commits': commits, 'scenario': scenario, 'applications': {name: {'revision': applications[name]['status']['sync']['revision'], 'health': applications[name]['status'].get('health', {}).get('status')} for name in expected}, 'verification': observed}
+    operation_id = state.get('operation_id', commits['fault_repo'])
+    trigger = trigger_once(context, operation_id, commits['fault_repo']) if scenario in ['quota-trap', 'admission-webhook-outage'] else None
+    observed = cleanup(config, state.get('retired_scenario', ''), operation_id) if not scenario else cluster.verify(context, scenario, timeout)
+    if not scenario: applications = wait_healthy_applications(context, namespace, expected, timeout)
+    result = {'mode': 'gitops', 'commits': commits, 'scenario': scenario, 'trigger': trigger, 'synced_at': datetime.datetime.now(datetime.timezone.utc).isoformat(), 'applications': {name: {'revision': applications[name]['status']['sync']['revision'], 'health': applications[name]['status'].get('health', {}).get('status'), 'operation_finished_at': applications[name]['status'].get('operationState', {}).get('finishedAt')} for name in expected}, 'verification': observed}
     return result
 
 
@@ -225,12 +288,13 @@ def main(argv=None):
     parser.add_argument('--run', default='arena.json')
     parser.add_argument('operation', choices=['export', 'bootstrap', 'fault', 'reset', 'sync'])
     args = parser.parse_args(argv); config = load(args.run); settings(config)
-    if args.operation in ['bootstrap', 'sync'] and not config.get('context'): raise ValueError('context is required')
+    if args.operation in ['bootstrap', 'sync', 'fault'] and not config.get('context'): raise ValueError('context is required')
     directory = Path(config.get('output_dir', 'runs')) / 'gitops' / (datetime.datetime.now(datetime.timezone.utc).strftime('%Y%m%dT%H%M%S') + '-' + args.operation + '-' + secrets.token_hex(3))
     directory.mkdir(parents=True, mode=0o700)
     write(directory / 'started.json', {'mode': 'gitops', 'operation': args.operation, 'context': config.get('context'), 'scenario': config.get('scenario')})
     try:
         if args.operation in ['bootstrap', 'sync']: write(directory / 'expected-commits.json', heads(config))
+        if args.operation == 'fault': ready_to_inject(config)
         result = export(config) if args.operation == 'export' else bootstrap(config) if args.operation == 'bootstrap' else sync(config) if args.operation == 'sync' else prepare(config, config['scenario'] if args.operation == 'fault' else '')
         write(directory / 'result.json', result)
         print(json.dumps(result, indent=2))

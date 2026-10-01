@@ -7,6 +7,7 @@ from pathlib import Path
 from unittest.mock import patch
 from bench.app_manifests import resources, flag_config, FLAG_FAULTS
 from bench.cluster_ops import check, fault_objects, guard, reset, deploy
+from bench import retirement
 
 def lookup(objects, kind, name, ns=None):
     return next(o for o in objects if o["kind"] == kind and o["metadata"]["name"] == name and (ns is None or o["metadata"].get("namespace") == ns))
@@ -94,19 +95,103 @@ class OperationalTests(unittest.TestCase):
         self.assertFalse(check("traffic-flood", {"requests_per_second": 10}))
         self.assertTrue(check("traffic-flood", {"application_logs": {"load-generator": "concurrency flag changed (5 -> 50), restarting k6"}}))
 
+    def test_crashloop_detects_repeated_crashes_between_backoff_windows(self):
+        pod = {"kind": "Pod", "metadata": {"name": "report-generator-test"}, "status": {"containerStatuses": [{"state": {"running": {}}, "restartCount": 3, "lastState": {"terminated": {"exitCode": 1}}}]}}
+        backoff = {"kind": "Event", "reason": "BackOff", "involvedObject": {"name": "report-generator-test"}}
+        self.assertTrue(check("crashloop", {"batch": [pod, backoff]}))
+        self.assertFalse(check("crashloop", {"batch": [pod]}))
+        pod["metadata"]["name"] = "unrelated-app"
+        self.assertFalse(check("crashloop", {"batch": [pod, backoff]}))
+
     def test_multifault_requires_both_causes(self):
-        e = {"batch": [{"kind": "Pod", "status": {"containerStatuses": [{"state": {"waiting": {"reason": "CrashLoopBackOff"}}}]}}], "logs": ""}
+        e = {"batch": [{"kind": "Pod", "metadata": {"name": "report-generator-test"}, "status": {"containerStatuses": [{"state": {"waiting": {"reason": "CrashLoopBackOff"}}}]}}], "logs": ""}
         self.assertFalse(check("multi-fault", e))
         e["logs"] = "write rejected (OOM)"; self.assertTrue(check("multi-fault", e))
 
-    def test_reset_releases_pvc_before_deleting_owned_pv(self):
-        owned_resource = {"metadata": {"labels": {"portable-benchmark": "suite-v1"}}}
-        with patch("bench.cluster_ops.guard"), patch("bench.cluster_ops.state", return_value={"registry": "fixture.local", "tag": "v1"}), patch("bench.cluster_ops.obj", return_value=owned_resource), patch("bench.cluster_ops.kube") as kube, patch("bench.cluster_ops.deploy", return_value={"observed": True}):
-            reset("explicit", True)
-        calls = [c.args for c in kube.call_args_list]
-        self.assertEqual(calls[0][2], "ValidatingWebhookConfiguration")
-        self.assertEqual(calls[1][2], "namespace")
-        self.assertEqual(calls[2][2], "PersistentVolume")
+    def test_reset_preserves_application_and_retires_only_fault_resources(self):
+        fault = [{"apiVersion": "v1", "kind": "PersistentVolumeClaim", "metadata": {"name": "index-store", "namespace": "batch"}},
+                 {"apiVersion": "v1", "kind": "PersistentVolume", "metadata": {"name": "index-store"}}]
+        def obj(context, kind, name, namespace=None):
+            return flag_config() if name == 'flagd-config' else {"metadata": {"labels": {"portable-benchmark": "suite-v1"}}}
+        with patch('bench.cluster_ops.require_direct'), patch('bench.cluster_ops.guard'), patch('bench.cluster_ops.state', return_value={'registry': 'fixture.local', 'tag': 'v1', 'scenario': 'volume-affinity-conflict'}), patch('bench.cluster_ops.obj', side_effect=obj), patch('bench.cluster_ops.fault_objects', return_value=fault), patch('bench.cluster_ops.kube') as kube, patch('bench.cluster_ops.set_state') as state, patch('bench.cluster_ops.verify', return_value={'observed': True}), patch.object(retirement, 'wait_pruned'), patch.object(retirement, 'restore', return_value=[]) as restore, patch.object(retirement, 'wait_baseline', return_value={'passed': True}):
+            reset('context', True)
+        deleted = json.loads(kube.call_args.kwargs['stdin'])['items']
+        self.assertEqual([o['kind'] for o in deleted], ['PersistentVolumeClaim'])
+        self.assertTrue(state.call_args_list[0].kwargs['reset_pending'])
+        self.assertEqual(state.call_args_list[-1].args, ('context', 'fixture.local', 'v1'))
+        restore.assert_called_once_with('context', 'volume-affinity-conflict')
+
+
+class RetirementTests(unittest.TestCase):
+    def test_cleanup_is_scenario_specific_and_redis_order_matches_parent(self):
+        with patch('bench.retirement.cluster.kube') as kube, patch.object(retirement, 'psql') as psql:
+            self.assertEqual(retirement.restore('ctx', ''), [])
+            self.assertEqual(retirement.restore('ctx', 'crashloop'), [])
+            kube.assert_not_called(); psql.assert_not_called()
+            retirement.restore('ctx', 'redis-pressure')
+        calls = kube.call_args_list
+        self.assertEqual(calls[0].args[-4:], ('config', 'set', 'maxmemory', '256mb'))
+        self.assertIn('warm:*', calls[1].args[-1])
+        self.assertNotIn('FLUSH', calls[1].args[-1])
+        with patch('bench.retirement.cluster.kube', side_effect=RuntimeError('restore failed')) as kube:
+            with self.assertRaises(RuntimeError): retirement.restore('ctx', 'redis-pressure')
+            self.assertEqual(kube.call_count, 1)
+
+    def test_password_comes_from_actual_consumer_secret_and_stays_off_argv(self):
+        import base64
+        dep = {'spec': {'template': {'spec': {'containers': [{'name': 'product-catalog', 'env': [{'name': 'DB_CONNECTION_STRING', 'valueFrom': {'secretKeyRef': {'name': 'rotated-client-setting', 'key': 'url'}}}]}]}}}}
+        secret = {'data': {'url': base64.b64encode(b'postgres://shop_user:new%27password@postgres/shop_db').decode()}}
+        with patch('bench.retirement.cluster.obj', side_effect=[dep, secret]) as obj, patch.object(retirement, 'psql') as psql:
+            retirement.restore('ctx', 'stale-db-credentials')
+        self.assertEqual(obj.call_args.args[2], 'rotated-client-setting')
+        self.assertIn("new''password", psql.call_args.args[1])
+        with patch('bench.retirement.cluster.kube', return_value='') as kube:
+            retirement.psql('ctx', 'PRIVATE_SQL')
+        self.assertNotIn('PRIVATE_SQL', kube.call_args.args)
+        self.assertEqual(kube.call_args.kwargs['stdin'], 'PRIVATE_SQL\n')
+
+    def test_lock_cleanup_matches_table_lock_not_query_text(self):
+        with patch.object(retirement, 'psql', side_effect=['1', '1', '0']) as psql:
+            retirement.restore('ctx', 'pg-lock-hold')
+        query = psql.call_args_list[1].args[1]
+        self.assertIn("catalog.products", query)
+        self.assertIn('pg_terminate_backend', query)
+        self.assertNotIn('LIKE', query)
+        self.assertIn('a.pid<>pg_backend_pid()', query)
+
+    def test_baseline_checks_report_residual_faults_even_with_healthy_http(self):
+        def kube(*args, **kwargs):
+            if retirement.BATCH_RESOURCES in args: return '{"items": [{"kind": "PersistentVolumeClaim"}]}'
+            if 'resourcequotas,networkpolicies' in args: return '{"items": [{"kind": "ResourceQuota"}]}'
+            if 'maxmemory' in args: return 'maxmemory\n134217728\n'
+            if 'logs' in args: return 'password authentication failed for user shop_user'
+            return 'warm:remaining'
+        def obj(context, kind, name, namespace=None):
+            if name == 'flagd-config': return flag_config()
+            if kind == 'deployment': return {'status': {'availableReplicas': 0}}
+            return {'metadata': {'name': name}}
+        with patch('bench.retirement.cluster.kube', side_effect=kube), patch('bench.retirement.cluster.obj', side_effect=obj), patch.object(retirement, 'psql', return_value='1'):
+            failures = retirement.baseline_failures('ctx')
+        for expected in ['batch workloads or claims remain', 'shop quota or network policy remains', 'Redis maxmemory is not 256mb', 'Redis warm:* keys remain', 'granted exclusive locks remain', 'recommendation is not 1/1 available']:
+            self.assertIn(expected, failures)
+        self.assertTrue(any('pod-policy' in value for value in failures))
+        self.assertTrue(any('index-store' in value for value in failures))
+        self.assertTrue(any('authentication failures' in value for value in failures))
+
+    def test_flag_edits_preserve_unrelated_flag_settings(self):
+        current = flag_config()
+        body = json.loads(current['data']['flags.json'])
+        body['flags']['adServeFallback']['defaultVariant'] = 'on'
+        current['data']['flags.json'] = json.dumps(body)
+        changed = retirement.flags(current, 'payment-failure')
+        values = json.loads(changed['data']['flags.json'])['flags']
+        self.assertEqual(values['paymentStrictTokenCheck']['defaultVariant'], '100%')
+        self.assertEqual(values['adServeFallback']['defaultVariant'], 'on')
+        reset = json.loads(retirement.flags(changed)['data']['flags.json'])['flags']
+        self.assertEqual(reset['paymentStrictTokenCheck']['defaultVariant'], 'off')
+        self.assertEqual(reset['adServeFallback']['defaultVariant'], 'on')
+        self.assertEqual(json.loads(retirement.flags(current, 'oom')['data']['flags.json']), body)
+
 
 
 

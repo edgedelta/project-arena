@@ -38,6 +38,8 @@ Clone your own repositories locally. Add this object to `arena.json`; paths are 
 }
 ```
 
+Set a repository’s `path` to `.` to use the original root-level `apps/`, `components/`, `batch-active/` and `flagd-values/` layout in separate empty repositories; prefixes are optional. Export refuses to overwrite an existing unmanaged tree.
+
 The tools never create a hosted repository, commit, or push. Use your normal Git authentication. Argo independently needs read access to both repositories; configure that in Argo's repository settings. Keep credentials out of repository URLs and run settings. Public repositories need no repository credential.
 
 ## Install Argo and export the desired state
@@ -74,7 +76,7 @@ python3 -m bench.gitops bootstrap
 python3 -m bench.gitops sync
 ```
 
-Bootstrap creates the owned namespaces, generates database credentials directly in Kubernetes, and applies `platform-root`. It does not write generated credentials into either repository. `platform-root` creates the component Applications and the separate `flagd-values`, `batch-jobs`, and `arena-control` Applications. They use automatic sync, pruning and self-healing.
+Bootstrap creates the owned namespaces, generates database credentials directly in Kubernetes, and applies `platform-root`. It does not write generated credentials into either repository. `platform-root` creates the component Applications and the separate `flagd-values`, `batch-jobs`, and `arena-control` Applications. They use automatic sync, pruning and self-healing. Only `batch-jobs` permits an empty application; component apps retain the parent’s `CreateNamespace=true` setting.
 
 `sync` checks that Argo reports the exact committed checkout revisions, then checks the runtime result. Local uncommitted changes cause refusal. A failed workload can correctly be `Synced` and `Degraded` during an injected fault, so sync verification does not mistake the fault's unhealthy status for a deployment mismatch.
 
@@ -82,7 +84,7 @@ Do not place Argo over an active direct deployment. Finish direct tests and remo
 
 ## Inject and reset
 
-Set `scenario` in `arena.json`, then prepare the change locally:
+Set `scenario` in `arena.json`, then prepare the change locally. The fault command first checks that the deployed Applications and parent retirement invariants are healthy; it refuses to stack another fault on an incomplete reset:
 
 ```sh
 python3 -m bench.gitops fault
@@ -93,7 +95,7 @@ git -C ../platform-config push origin main
 python3 -m bench.gitops sync
 ```
 
-Flag scenarios change `flagd-values`; workload scenarios select a library directory in `batch-active`. For quota and admission-webhook faults, `sync` recreates the recommendation pod after the fault revision is applied, exposing the admission failure.
+Flag scenarios change only their selected default variant in `flagd-values`; workload scenarios select a library directory in `batch-active` without rewriting unrelated flags. For quota and admission-webhook faults, `sync` deletes exactly one recommendation pod after the fault revision is applied. A Kubernetes operation receipt prevents repeat deletion on later syncs. If deletion was interrupted or failed, the receipt stays explicitly uncertain: inspect the recorded pod before resolving that operation; the runner will not silently delete a replacement.
 
 Reset has the same explicit Git step:
 
@@ -105,6 +107,9 @@ git -C ../platform-config push origin main
 python3 -m bench.gitops sync
 ```
 
-Argo prunes the fault workloads and restores baseline flags. After injector pods/jobs disappear, `sync` removes only the warmer's disposable Redis keys, restores Redis's memory budget, restores the application database password, releases any remaining identified maintenance lock and refreshes catalog connections. It then checks healthy frontend/catalog responses. Complete this reset before preparing another fault; GitOps reset preserves the application and its persistent stores.
+Argo prunes the fault workloads and restores the three scenario flags, preserving other flag settings. The recorded retired scenario selects its cleanup: Redis pressure restores the 256mb budget before removing only `warm:*` keys; stale credentials restore the password from the actual catalog Deployment setting or referenced Secret; a held catalog lock is released only after its injector disappears; a retained `index-store` PV is removed after its claim. Other cases do not mutate Redis or database credentials, and no healthy application pods are restarted.
 
-Receipts under `output_dir/gitops/` record preparation/bootstrap/sync, expected Git commits, Argo's applied revisions and health, and runtime verification. These deployment records remain separate from the product's investigation and scores. Use `bench evidence` for a broader Kubernetes/Argo snapshot.
+Both paths check the parent retirement invariants, including no leftover workload/claim/policy/quota/webhook/PV, baseline flags, Redis budget/keyspace, exclusive locks and trailing two-minute authentication errors. Argo baseline/reset additionally requires every expected Application to be Synced and Healthy. Initial healthy sync runs checks without data repairs. GitOps cleanup receipts prevent repeating completed repairs on every subsequent sync. Complete reset before preparing another fault; services, persistent stores and credentials are preserved.
+
+
+Receipts under `output_dir/gitops/` record preparation/bootstrap/sync, expected Git commits, Argo's applied revisions, operation completion timestamps and health, and runtime verification. Preparation timestamps describe local preparation, not when Kubernetes applied the change. Exact SHA matching is stricter than the parent helper’s relevant-path tree comparison. These deployment records remain separate from the product's investigation and scores. Use `bench evidence` for a broader Kubernetes/Argo snapshot.

@@ -64,7 +64,7 @@ def main(argv=None):
         child.add_argument("scenario", choices=sorted(catalog()) + (["healthy"] if op == "verify" else []))
         child.add_argument("--context", required=True)
         if op == "verify": child.add_argument("--timeout", type=int, default=120)
-    reset_p = sub.add_parser("reset", help="replace owned fixture namespaces/data and regenerate credentials")
+    reset_p = sub.add_parser("reset", help="retire the fault and restore its side effects, preserving healthy services and data")
     reset_p.add_argument("--context", required=True)
     reset_p.add_argument("--confirm-disposable", action="store_true")
     args = p.parse_args(argv)
