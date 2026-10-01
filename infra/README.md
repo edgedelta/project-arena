@@ -61,6 +61,19 @@ terraform -chdir=infra/cluster init -migrate-state \
 
 Do not run init migration concurrently with another state writer. The optional backend is operator configuration, not committed account configuration.
 
+## Persistent storage
+
+The shop uses persistent PostgreSQL and Redis volumes. After EKS and its EBS CSI add-on are ready, configure a default storage class on the dedicated test cluster:
+
+```sh
+kubectl --context YOUR_CONTEXT get storageclass
+kubectl --context YOUR_CONTEXT apply -f infra/kubernetes/storageclass.yaml
+```
+
+The supplied `arena-gp3` class provisions encrypted gp3 volumes and waits until a pod is scheduled before choosing its availability zone. A fresh EKS cluster can have a `gp2` class without any default; without a default, the shop PVCs remain Pending. If your cluster already has a suitable default, use that instead of adding a second default. This setup is for EKS; kind supplies its own local storage class.
+
+Deleting the fixture's PVCs during reset deletes these disposable EBS volumes. Before destroying EKS, delete the workloads/PVCs and allow the CSI controller to finish volume cleanup.
+
 ## Container registry
 
 Workers must be able to pull the benchmark images. Use a registry you control; create repositories and authenticate Docker before running `build-images --push`. The build command does not provision registry repositories.
@@ -75,7 +88,7 @@ python3 - <<'PYIMAGES' > /tmp/arena-images.txt
 import json
 from pathlib import Path
 entries = json.loads(Path("scenarios/scenarios.json").read_text()).values()
-print("\n".join(sorted({e["image"] for e in entries if "image" in e} | {"shop-app"})))
+print("\n".join(sorted({e["image"] for e in entries if "image" in e})))
 PYIMAGES
 while IFS= read -r image; do
   aws ecr describe-repositories --region "$ARENA_REGION" --repository-names "project-arena/$image" >/dev/null 2>&1 ||

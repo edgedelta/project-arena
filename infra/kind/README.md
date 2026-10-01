@@ -2,6 +2,8 @@
 
 This setup uses Cilium so the `netpol-isolation` scenario can enforce its policy. Run from the project root with Docker, kind, kubectl and Helm installed. Create a new cluster; do not install a second CNI over kind's default networking.
 
+The full suite requires AMD64 workers because its prebuilt application images are AMD64-only. On Apple Silicon, use native kind for the smoke suite or use AMD64 remote workers for the full suite. The commands below are for an AMD64 full-suite cluster.
+
 ```sh
 kind create cluster --name incident-bench --config infra/kind/cluster.yaml
 helm upgrade --install cilium cilium \

@@ -124,7 +124,7 @@ def http(context, service="frontend", path="/"):
         raise ValueError("unsupported frontend probe target")
     # The original frontend contains Node, not the Python runtime used by the old fixture.
     script = "fetch(" + json.dumps("http://frontend.shop.svc.cluster.local:8080" + path) + ", {signal: AbortSignal.timeout(10000)}).then(async r => console.log(JSON.stringify({status:r.status,body:(await r.text()).slice(0,65536)}))).catch(() => console.log(JSON.stringify({status:0,body:'connection failed'})))"
-    return json.loads(kube(context, "-n", "shop", "exec", "deployment/frontend", "--", "node", "-e", script))
+    return json.loads(kube(context, "-n", "shop", "exec", "deployment/frontend", "--", "/nodejs/bin/node", "-e", script))
 
 
 def collect(context):

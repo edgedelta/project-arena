@@ -1,0 +1,13 @@
+__pycache__/
+*.pyc
+runs/
+.env
+.venv/
+*.tfstate*
+*.tfplan
+kubeconfig*
+.terraform/
+local.tfvars
+backend.tf
+arena.json
+addons.auto.tfvars.json
