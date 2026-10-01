@@ -29,7 +29,7 @@ def scrub(value):
         elif key in ['command', 'args']: result[key] = ['<omitted>']
         elif key in ['data', 'binaryData'] and value.get('kind') == 'ConfigMap':
             # Flags are part of this fixture; generic ConfigMaps can contain credentials.
-            result[key] = item if value.get('metadata', {}).get('name') in ['shop-flags', 'suite-state'] else {k: '<omitted>' for k in item}
+            result[key] = item if value.get('metadata', {}).get('name') in ['shop-flags', 'flagd-config', 'suite-state'] else {k: '<omitted>' for k in item}
         else: result[key] = scrub(item)
     return result
 
@@ -40,7 +40,7 @@ def capture(context, suite):
     This is a point-in-time collection, not a complete incident history. A pod
     may already have disappeared, and previous-container logs may not exist.
     """
-    namespaces = ['benchmark-control', 'shop', 'datastore', 'batch', 'platform-ops'] if suite == 'full' else ['incident-bench']
+    namespaces = ['benchmark-control', 'shop', 'datastore', 'batch', 'platform-ops', 'telemetry'] if suite == 'full' else ['incident-bench']
     result = {'captured_at': now(), 'context': context, 'suite': suite, 'resources': {}, 'logs': [], 'errors': [],
               'limitations': ['Secret resources are not collected. Literal environment values, container commands/arguments and generic ConfigMap values are omitted. Logs may still contain application-emitted sensitive data.',
                              'Logs are bounded snapshots, not continuous telemetry. Missing previous-container logs are recorded as unavailable.']}
@@ -73,6 +73,8 @@ def capture(context, suite):
         for kind, name in [('persistentvolume', 'index-store'), ('validatingwebhookconfiguration', 'pod-policy')]:
             value = get(['get', kind, name, '--ignore-not-found', '-o', 'json'])
             if value: result['resources'][kind] = scrub(value)
+        # Argo may be absent in direct mode; keep that explicit in the snapshot.
+        result['gitops_applications'] = scrub(get(['-n', 'argocd', 'get', 'applications', '-l', 'portable-benchmark=suite-v1', '-o', 'json']))
         result['storage_classes'] = scrub(get(['get', 'storageclasses', '-o', 'json']))
     result['finished_at'] = now()
     return result

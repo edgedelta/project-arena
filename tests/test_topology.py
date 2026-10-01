@@ -73,7 +73,7 @@ class TopologyTests(unittest.TestCase):
 class OperationalTests(unittest.TestCase):
     def test_arm_only_cluster_rejected_before_mutation(self):
         nodes = {"items": [{"metadata": {"labels": {"kubernetes.io/arch": "arm64"}}}]}
-        with patch("bench.cluster_ops.kube", return_value=json.dumps(nodes)) as kube:
+        with patch("bench.cluster_ops.require_direct"), patch("bench.cluster_ops.kube", return_value=json.dumps(nodes)) as kube:
             with self.assertRaisesRegex(ValueError, "AMD64"):
                 deploy("context", "fixture.local", "v1")
         self.assertEqual(kube.call_count, 1)

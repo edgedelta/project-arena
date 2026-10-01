@@ -11,7 +11,7 @@ TEMPLATE = {
     "registry": "fixture.local", "tag": "v1", "truths": {},
     "judge_command": [], "judge": {"provider": "openai", "model": "", "max_output_tokens": 8192}, "context": "",
 }
-KEYS = set(TEMPLATE) | {"rubric"}
+KEYS = set(TEMPLATE) | {"rubric", "gitops"}
 
 
 def load(path=None):
@@ -22,7 +22,9 @@ def load(path=None):
     unknown = set(config) - KEYS
     if unknown: raise ValueError("unknown run settings: " + ", ".join(sorted(unknown)))
     for key, value in config.items():
-        if key == "judge":
+        if key == "gitops":
+            if not isinstance(value, dict): raise ValueError("gitops must be an object")
+        elif key == "judge":
             if not isinstance(value, dict): raise ValueError("judge must be an object")
         elif key == "truths":
             if not isinstance(value, dict) or not all(isinstance(k, str) and isinstance(v, str) and v for k, v in value.items()):
@@ -35,6 +37,10 @@ def load(path=None):
     for key in ["output_dir", "rubric"]:
         if key in config: config[key] = str(base / config[key])
     config["truths"] = {k: str(base / v) for k, v in config.get("truths", {}).items()}
+    if "gitops" in config:
+        for name in ["app_repo", "fault_repo"]:
+            repo = config["gitops"].get(name, {})
+            if isinstance(repo.get("checkout"), str): repo["checkout"] = str(base / repo["checkout"])
     return config
 
 

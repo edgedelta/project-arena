@@ -50,7 +50,14 @@ def state(context):
     return current["data"]
 
 
+def require_direct(context):
+    current = obj(context, "configmap", "suite-state", "benchmark-control")
+    if current and current.get("data", {}).get("deployment_mode") == "gitops":
+        raise ValueError("This deployment is managed by Argo CD; use bench.gitops fault/reset and sync")
+
+
 def deploy(context, registry, tag):
+    require_direct(context)
     nodes = json.loads(kube(context, "get", "nodes", "-o", "json"))["items"]
     if not any(node.get("metadata", {}).get("labels", {}).get("kubernetes.io/arch") == "amd64" for node in nodes):
         raise ValueError("The original full-suite shop images require AMD64 workers; use an AMD64 cluster or the smoke suite on ARM64")
@@ -87,6 +94,7 @@ def fault_objects(scenario, registry, tag):
 
 
 def start(context, scenario):
+    require_direct(context)
     guard(context)
     current = state(context)
     if current["scenario"]: raise ValueError("Reset the active case before starting another: " + current["scenario"])
@@ -105,6 +113,7 @@ def start(context, scenario):
 
 def reset(context, confirmed=False):
     if not confirmed: raise ValueError("reset requires --confirm-disposable; it replaces all owned fixture namespaces and generated data")
+    require_direct(context)
     guard(context, False)
     current = state(context)
     for kind, name in [("ValidatingWebhookConfiguration", "pod-policy"), ("PersistentVolume", "index-store")]:
