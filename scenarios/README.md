@@ -76,11 +76,14 @@ python3 -m bench.scenarios reset --context kind-incident-bench --confirm-disposa
 
 For cloud deployment pass `--registry` and `--tag` to deploy. The controller remembers them for subsequent injections. Every Kubernetes action needs an explicit context; no personal profile or vendor credential is used. Existing namespaces without the fixture ownership label are rejected. The owned namespaces are `benchmark-control`, `shop`, `datastore`, `batch`, `platform-ops`, `telemetry`.
 
-Deploy generates separate random administrator/application passwords, supplies them to Kubernetes over stdin, waits for readiness and checks frontend and catalog responses. It records reset state before workload application, allowing cleanup after partial deployment. Secrets are not printed or saved into tracked files.
+Deploy generates separate random administrator/application passwords, supplies them to Kubernetes over stdin, waits for readiness and checks frontend and catalog responses. It records operation state before workload application so partial deployment failures remain visible. Secrets are not printed or saved into tracked files.
 
 Start accepts only one active scenario. Applying YAML is reported separately from observing a fault. Verify polls Kubernetes status/events, application responses, or logs; it exits nonzero if the expected mechanism is not observed. For the PostgreSQL lock scenario, a generic timeout is insufficient: verification also requires a granted exclusive lock on `catalog.products`. Multi-fault requires both crashloop and Redis-write rejection signals. Traffic confirmation checks that the load-generator adopted 50 concurrent sessions; this is not a measurement of achieved request throughput.
 
-**Reset deletes and recreates the owned fixture namespaces and their disposable data**, then creates fresh credentials and checks the healthy path. This removes database credential changes, locks, Redis keys/configuration, stale jobs and lingering flags. It first removes the owned webhook, then namespaces, then the owned disposable PV. Unowned cluster-scoped resources with conflicting names cause refusal. This command is for a dedicated disposable fixture, not a production/shared namespace. The confirmation flag makes the data replacement explicit.
+**Reset retires the injected fault without redeploying healthy services or replacing application data and credentials.** Both direct and Argo paths restore only the three scenario flags. After fault workloads and claims disappear, scenario-specific helpers restore Redis's memory budget before clearing `warm:*` keys, restore the database password from the actual catalog connection setting, release the catalog table lock, or delete the retained fault PV as applicable. Ordinary crashloop/flag resets do not alter Redis or database credentials.
+
+Reset checks that fault workloads, claims, policies, quotas, webhook and PV are absent; required flags, Redis settings, database lock/auth state, recommendation and load-generator availability are healthy. It also checks frontend/catalog responses. `--confirm-disposable` remains required for direct reset because disposable fault resources and their data are removed. This command does not tear down the cluster or application.
+
 
 ## Environment requirements
 
