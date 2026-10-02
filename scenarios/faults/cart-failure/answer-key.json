@@ -1,9 +1,9 @@
 {
   "scenario": "cart-failure",
   "ground_truth": {
-    "cause": "flagd-config sets cartSecondaryStoreShare defaultVariant to 100%. Cart operations are routed to cart-store-secondary:6379, an unavailable secondary store, instead of the healthy Redis primary.",
-    "impact": "Cart operations fail and callers in frontend and checkout see propagated errors. Redis itself is not established as broken.",
-    "mitigation": "Restore cartSecondaryStoreShare to off and verify cart operations and checkout recover against the primary Redis. Repairing or restarting the healthy primary does not remove the routing fault.",
+    "cause": "flagd-config sets cartSecondaryStoreShare defaultVariant to 100%, selecting the unavailable secondary store for EmptyCart. The recorded incident affected cart clearing; GetCart and AddItem continued working in the observed logs.",
+    "impact": "Cart clearing fails and frontend cart behavior is degraded. Checkout calls EmptyCart, but the recorded investigation did not demonstrate failed checkout orders; dependency exposure is not proof of a checkout outage. Redis itself is not established as broken.",
+    "mitigation": "Restore cartSecondaryStoreShare to off and verify EmptyCart succeeds against the primary Redis. Check checkout order outcomes rather than assume they failed or recovered. Repairing or restarting the healthy primary does not remove the routing fault.",
     "causal_change": {
       "eligible": false,
       "reason": "This scenario does not provide a controlled introducing commit and recorded product access to its history."

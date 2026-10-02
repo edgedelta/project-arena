@@ -3,6 +3,7 @@ import hashlib
 import json
 import os
 import re
+import time
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -146,6 +147,7 @@ def output_text(response, provider):
 
 
 def run(packet, value, output):
+    started = time.monotonic()
     config = settings(value)
     output = Path(output)
     if output.exists(): raise FileExistsError('judgment output already exists: ' + str(output))
@@ -168,8 +170,8 @@ def run(packet, value, output):
                              'settings': dict(config, adapter_sha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest())}
         validated = validate_judgment(decision, packet)
         save(output, validated)
-        save(directory / 'status.json', {'valid': True, 'output': str(output), 'usage': response.get('usage', {}), 'request_identity_fields_filled': identity_fills})
+        save(directory / 'status.json', {'valid': True, 'output': str(output), 'usage': response.get('usage', {}), 'duration_seconds': time.monotonic() - started, 'request_identity_fields_filled': identity_fills})
         return validated
     except Exception as error:
-        save(directory / 'status.json', {'valid': False, 'error_type': type(error).__name__})
+        save(directory / 'status.json', {'valid': False, 'error_type': type(error).__name__, 'duration_seconds': time.monotonic() - started})
         raise

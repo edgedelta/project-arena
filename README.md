@@ -299,3 +299,7 @@ To run the offline tests:
 ```sh
 python3 -m unittest discover -s tests -v
 ```
+
+## License
+
+Project Arena is licensed under the [MIT License](LICENSE). Bundled third-party code retains its own license, including the shop application under [Apache-2.0](scenarios/shop/LICENSE).
